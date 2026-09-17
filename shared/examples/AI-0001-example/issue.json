@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "issue_id": "ISS-0001",
+  "ai_id": "AI-0001",
+  "summary": "Synthetic pilot response delay",
+  "issue_type": "performance",
+  "severity": "low",
+  "status": "resolved",
+  "owner": "Example COE Owner",
+  "date_opened": "2026-09-10",
+  "date_closed": "2026-09-12",
+  "resolution": "Synthetic configuration adjustment completed.",
+  "governance_escalation": false,
+  "last_updated": "2026-09-12"
+}

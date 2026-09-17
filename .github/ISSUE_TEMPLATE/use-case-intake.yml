@@ -1,0 +1,83 @@
+name: AI use-case intake
+description: Propose a departmental or enterprise AI use case for evaluation.
+title: "[Intake] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include personal information, production data, credentials, or restricted evidence. Submission begins evaluation and is not approval.
+  - type: input
+    id: department
+    attributes:
+      label: Requesting department
+      placeholder: Department name
+    validations:
+      required: true
+  - type: input
+    id: sponsor
+    attributes:
+      label: Department sponsor or leader
+      placeholder: Role or approved contact
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: Describe the current problem, process, scale, and affected users.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Intended outcome and benefit
+      description: Include measurable benefits and strategic alignment where known.
+    validations:
+      required: true
+  - type: textarea
+    id: current_state
+    attributes:
+      label: Current process and alternatives considered
+    validations:
+      required: true
+  - type: textarea
+    id: technology
+    attributes:
+      label: Known systems, platforms, vendors, or AI features
+  - type: textarea
+    id: data
+    attributes:
+      label: Data sources, owners, and sensitivity
+      description: Describe categories only; do not upload the data.
+    validations:
+      required: true
+  - type: dropdown
+    id: resident_facing
+    attributes:
+      label: Is the use case resident-facing?
+      options: ["No", "Yes", "Unknown"]
+    validations:
+      required: true
+  - type: dropdown
+    id: public_safety
+    attributes:
+      label: Does it involve public safety or public-safety data?
+      options: ["No", "Yes", "Unknown"]
+    validations:
+      required: true
+  - type: textarea
+    id: oversight
+    attributes:
+      label: Expected human oversight
+      description: Explain who will review, approve, or override AI output.
+    validations:
+      required: true
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Submission acknowledgement
+      options:
+        - label: I have not included secrets, personal information, production data, or restricted evidence.
+          required: true
+        - label: I understand that this request requires governance review before implementation or expanded use.
+          required: true

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Repository guidance
+    url: https://github.com/AtriManthani/AI-Center-Of-Excellence/blob/main/README.md
+    about: Review repository purpose, information handling, and working conventions before submitting.

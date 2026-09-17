@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "ai_id": "AI-####",
+  "name": "<use-case name>",
+  "department": "<department>",
+  "description": "<problem and intended outcome>",
+  "ownership": {"sponsor": null, "business_owner": "<role>", "coe_owner": "<role>"},
+  "governance": {"phase": "opportunity_identification", "substage": "intake", "gate_status": "draft", "priority": "unassigned", "build_buy": "undecided", "next_gate": "G1", "next_gate_date": null},
+  "inventory": {"bucket": "pre_inventory", "operational_status": "proposed", "backlog_reason": null, "resolution": null},
+  "risk": {"tier": "unassessed", "data_sensitivity": "unassessed", "resident_facing": false, "public_safety": false, "human_oversight": "unassessed"},
+  "licenses": [],
+  "monitoring": null,
+  "dates": {"created": "YYYY-MM-DD", "last_updated": "YYYY-MM-DD", "target_production": null, "go_live": null, "closed": null},
+  "links": {},
+  "record_status": "draft"
+}

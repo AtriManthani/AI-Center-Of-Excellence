@@ -1,0 +1,28 @@
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.tmp
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Generated output and local caches
+dist/
+build/
+coverage/
+.cache/
+__pycache__/
+*.py[cod]
+*.log
+
+# Office temporary files
+~$*.docx
+~$*.xlsx
+~$*.pptx

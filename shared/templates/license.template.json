@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "license_id": "LIC-####",
+  "tool_name": "<approved tool name>",
+  "vendor": "<vendor>",
+  "capacity": {"purchased": 0, "assigned": 0, "available": 0},
+  "funding_owner": null,
+  "renewal_date": null,
+  "supported_use_cases": [],
+  "status": "draft",
+  "notes": null,
+  "last_updated": "YYYY-MM-DD"
+}

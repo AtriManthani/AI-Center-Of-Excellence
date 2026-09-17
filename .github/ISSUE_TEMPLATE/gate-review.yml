@@ -1,0 +1,63 @@
+name: Governance gate review
+description: Request a documented lifecycle gate decision for an existing use case.
+title: "[Gate Review] AI-#### — "
+body:
+  - type: input
+    id: ai_id
+    attributes:
+      label: AI use-case ID
+      placeholder: AI-0001
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Current governance phase
+      options:
+        - Opportunity Identification
+        - Opportunity Qualification
+        - Opportunity Prioritization
+        - Solution Design
+        - Solution Development
+        - Solution Testing
+        - Solution Deployment
+        - Solution Monitoring & Improvement
+        - Solution Closeout
+    validations:
+      required: true
+  - type: input
+    id: gate
+    attributes:
+      label: Decision requested
+      placeholder: G6 — Design approved for implementation?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and controlled references
+      description: Link approved artifacts; do not attach restricted evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Material risks, mitigations, and residual risk
+    validations:
+      required: true
+  - type: textarea
+    id: recommendation
+    attributes:
+      label: Project-team recommendation
+      description: State the recommended outcome and any proposed conditions.
+    validations:
+      required: true
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Readiness
+      options:
+        - label: Required evidence has been reviewed by the project team.
+          required: true
+        - label: Known exceptions and incomplete items are explicitly listed.
+          required: true
