@@ -1,0 +1,80 @@
+name: AI operational issue
+description: Record and mitigate an issue affecting a live AI use case.
+title: "[AI ISSUE] "
+labels: ["operational-issue", "status:open"]
+body:
+  - type: input
+    id: use_case_id
+    attributes:
+      label: Parent use-case ID
+      placeholder: AI-0001
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options: [Critical, High, Medium, Low]
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue description
+      description: Describe what happened and how it was detected.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Identify affected users, services, decisions, data, cost, or reputation.
+    validations:
+      required: true
+  - type: textarea
+    id: containment
+    attributes:
+      label: Immediate containment
+      description: Record actions already taken to reduce harm or exposure.
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: Issue owner
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Target resolution date
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true
+  - type: textarea
+    id: root_cause
+    attributes:
+      label: Root cause
+      description: Complete when known.
+    validations:
+      required: false
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Mitigation and corrective action
+    validations:
+      required: false
+  - type: textarea
+    id: prevention
+    attributes:
+      label: Recurrence-prevention action
+    validations:
+      required: false
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and supporting files
+      description: Drag public, non-sensitive files here or link to evidence stored in this repository.
+    validations:
+      required: false
+

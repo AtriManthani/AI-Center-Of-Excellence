@@ -1,0 +1,22 @@
+{
+  "id": "AI-0000",
+  "name": "Use-case name",
+  "department": "Department",
+  "owner": "Program owner",
+  "sponsor": "Executive sponsor",
+  "phase": "Opportunity Identification",
+  "status": "In Progress",
+  "gateReadiness": 0,
+  "currentActivity": "Complete the initial intake.",
+  "blocker": "",
+  "nextDecision": "Confirm intake validity and completeness",
+  "nextDecisionDate": null,
+  "lastUpdated": "YYYY-MM-DD",
+  "summary": "Leadership-approved description of the use case.",
+  "closureReason": null,
+  "healthOverride": null,
+  "healthOverrideReason": null,
+  "publish": false,
+  "issues": []
+}
+

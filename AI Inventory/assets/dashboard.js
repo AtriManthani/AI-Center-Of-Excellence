@@ -1,6 +1,10 @@
 "use strict";
 
+const REPOSITORY = "AtriManthani/AI-Center-Of-Excellence";
+const BRANCH = "main";
 const DATA_URL = `data/use-cases.json?v=${Date.now()}`;
+const TREE_API = `https://api.github.com/repos/${REPOSITORY}/git/trees/${BRANCH}?recursive=1`;
+const RECORD_PREFIX = "AI Inventory/use-cases/";
 const PHASES = [
   "Opportunity Identification",
   "Opportunity Qualification",
@@ -25,6 +29,56 @@ const formatDate = value => {
   return Number.isNaN(date.valueOf()) ? escapeHtml(value) : date.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
 };
 const statusCount = status => state.data.useCases.filter(item => item.status === status).length;
+
+function calculateHealth(record){
+  if(["Green","Amber","Red"].includes(record.healthOverride)) return record.healthOverride;
+  const openIssues=(record.issues||[]).filter(issue=>issue.status!=="Resolved");
+  if(openIssues.some(issue=>["Critical","High"].includes(issue.severity))) return "Red";
+  if(record.blocker||record.status==="On Hold") return "Amber";
+  if(record.nextDecisionDate&&["In Progress","Live"].includes(record.status)){
+    const target=new Date(`${record.nextDecisionDate}T23:59:59`);
+    if(!Number.isNaN(target.valueOf())&&target<new Date()) return "Amber";
+  }
+  return "Green";
+}
+
+function publicRecord(record){
+  return {
+    id:record.id,name:record.name,department:record.department,owner:record.owner,
+    phase:record.phase,status:record.status,health:calculateHealth(record),
+    gateReadiness:record.gateReadiness,currentActivity:record.currentActivity,
+    blocker:record.blocker,nextDecision:record.nextDecision,
+    nextDecisionDate:record.nextDecisionDate,lastUpdated:record.lastUpdated,
+    summary:record.summary,closureReason:record.closureReason,
+    issues:(record.issues||[]).filter(issue=>issue.publish).map(issue=>({
+      id:issue.id,title:issue.title,severity:issue.severity,status:issue.status,
+      owner:issue.owner,targetDate:issue.targetDate,resolvedDate:issue.resolvedDate,
+      mitigationSummary:issue.mitigationSummary
+    }))
+  };
+}
+
+async function discoverInventory(){
+  const response=await fetch(TREE_API,{headers:{Accept:"application/vnd.github+json"},cache:"no-store"});
+  if(!response.ok) throw new Error(`GitHub inventory discovery failed (${response.status}).`);
+  const tree=await response.json();
+  const paths=(tree.tree||[]).map(item=>item.path).filter(path=>path.startsWith(RECORD_PREFIX)&&path.endsWith("/use-case.json")&&!path.includes("/_template/"));
+  const records=await Promise.all(paths.map(async path=>{
+    const url=`https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/${path.split("/").map(encodeURIComponent).join("/")}?v=${Date.now()}`;
+    const recordResponse=await fetch(url,{cache:"no-store"});
+    if(!recordResponse.ok) throw new Error(`Could not read ${path}.`);
+    return recordResponse.json();
+  }));
+  const useCases=records.filter(record=>record.publish).map(publicRecord).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+  const latest=useCases.map(item=>item.lastUpdated).filter(Boolean).sort().at(-1)||null;
+  return {schemaVersion:1,generatedAt:latest,source:"AI CoE public governance workspace",useCases};
+}
+
+async function fallbackInventory(){
+  const response=await fetch(DATA_URL,{cache:"no-store"});
+  if(!response.ok) throw new Error(`Inventory fallback request failed (${response.status}).`);
+  return response.json();
+}
 
 function card(item){
   const blocker = item.blocker ? `<div class="detail"><strong>Blocker:</strong> ${escapeHtml(item.blocker)}</div>` : "";
@@ -100,9 +154,9 @@ function togglePresentation(force){const enabled=force??!document.body.classList
 
 async function load(){
   try{
-    const response=await fetch(DATA_URL,{cache:"no-store"});
-    if(!response.ok) throw new Error(`Inventory request failed (${response.status}).`);
-    const data=await response.json();
+    let data;
+    try{data=await discoverInventory();}
+    catch(discoveryError){console.warn(discoveryError.message);data=await fallbackInventory();}
     if(!Array.isArray(data.useCases)) throw new Error("Inventory data is not in the expected format.");
     state.data=data;
     byId("freshness").textContent=data.generatedAt?`Published ${formatDate(data.generatedAt)}`:"Awaiting first approved inventory publication";

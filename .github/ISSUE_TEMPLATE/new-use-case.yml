@@ -1,0 +1,84 @@
+name: New AI use case
+description: Submit a proposed AI use case for Opportunity Identification.
+title: "[USE CASE] "
+labels: ["use-case", "phase:intake"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue becomes the permanent working record for the use case. Do not include information that is not approved for this public repository.
+  - type: input
+    id: name
+    attributes:
+      label: Use-case name
+      placeholder: Short, decision-ready name
+    validations:
+      required: true
+  - type: input
+    id: department
+    attributes:
+      label: Department
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: Program owner
+    validations:
+      required: true
+  - type: input
+    id: sponsor
+    attributes:
+      label: Executive sponsor
+    validations:
+      required: false
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: Describe the current problem, affected users, and why it matters.
+    validations:
+      required: true
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Expected benefit
+      description: Include measurable value where possible.
+    validations:
+      required: true
+  - type: textarea
+    id: current_process
+    attributes:
+      label: Current process
+      description: Summarize the current workflow and known pain points.
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Data needs and sources
+      description: Identify expected sources, sensitivity, ownership, and access needs.
+    validations:
+      required: false
+  - type: textarea
+    id: technology
+    attributes:
+      label: Technology and platform
+      description: Note known platforms, integrations, licenses, or vendor dependencies.
+    validations:
+      required: false
+  - type: textarea
+    id: risks
+    attributes:
+      label: Initial risks and constraints
+      description: Include privacy, cybersecurity, legal, bias, reliability, adoption, and capacity concerns.
+    validations:
+      required: false
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Submission confirmation
+      options:
+        - label: The information is appropriate for the public AI Governance Workspace.
+          required: true
+

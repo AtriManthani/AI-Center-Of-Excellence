@@ -1,6 +1,5 @@
 # Published inventory data
 
-`use-cases.json` contains only the approved fields used by the public leadership dashboard.
+`use-cases.json` is the fallback dataset used when live discovery is unavailable.
 
-It is generated from the private AI Governance Workspace. Never place supporting documents, detailed risks, security findings, personal information, or private comments in this folder.
-
+The dashboard normally discovers approved records directly from `AI Inventory/use-cases`. Never place sensitive information, security findings, personal information, contractual details, or private comments in this public repository.

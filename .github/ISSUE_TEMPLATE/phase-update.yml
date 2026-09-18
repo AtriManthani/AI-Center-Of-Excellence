@@ -1,0 +1,77 @@
+name: Use-case status update
+description: Record a phase change, gate decision, or significant latest-status update.
+title: "[STATUS UPDATE] "
+labels: ["status-update"]
+body:
+  - type: input
+    id: use_case_id
+    attributes:
+      label: Use-case ID
+      placeholder: AI-0001
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Current governance phase
+      options:
+        - Opportunity Identification
+        - Opportunity Qualification
+        - Opportunity Prioritization
+        - Solution Design
+        - Solution Development
+        - Solution Testing
+        - Solution Deployment
+        - Solution Monitoring & Improvement
+        - Solution Closeout
+    validations:
+      required: true
+  - type: dropdown
+    id: status
+    attributes:
+      label: Operational status
+      options: [In Progress, Backlog, Live, On Hold, Closed]
+    validations:
+      required: true
+  - type: textarea
+    id: latest
+    attributes:
+      label: Latest activity
+      description: State what is happening now in one leadership-ready sentence.
+    validations:
+      required: true
+  - type: input
+    id: readiness
+    attributes:
+      label: Gate readiness percentage
+      placeholder: 0-100
+    validations:
+      required: true
+  - type: textarea
+    id: missing
+    attributes:
+      label: Missing requirements or blockers
+      description: Checklists are advisory; record material gaps clearly.
+    validations:
+      required: false
+  - type: input
+    id: next_decision
+    attributes:
+      label: Next decision or milestone
+    validations:
+      required: false
+  - type: input
+    id: next_date
+    attributes:
+      label: Target date
+      placeholder: YYYY-MM-DD
+    validations:
+      required: false
+  - type: dropdown
+    id: dashboard
+    attributes:
+      label: Publish this latest status to the leadership dashboard?
+      options: ["Yes", "No"]
+    validations:
+      required: true
+

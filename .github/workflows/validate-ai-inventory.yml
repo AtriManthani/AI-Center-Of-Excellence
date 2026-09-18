@@ -1,0 +1,33 @@
+name: Validate AI Inventory
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "AI Inventory/use-cases/**"
+      - "AI Inventory/scripts/export_inventory.py"
+      - ".github/workflows/validate-ai-inventory.yml"
+  pull_request:
+    paths:
+      - "AI Inventory/use-cases/**"
+      - "AI Inventory/scripts/export_inventory.py"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out AI CoE repository
+        uses: actions/checkout@v4
+      - name: Validate use-case records and public allowlist
+        run: python "AI Inventory/scripts/export_inventory.py" --validate
+      - name: Retain the validated leadership dataset
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-ai-inventory
+          path: "AI Inventory/dist/use-cases.json"
+          if-no-files-found: error
+
