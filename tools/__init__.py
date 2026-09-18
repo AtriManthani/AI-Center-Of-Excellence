@@ -1,1 +1,0 @@
-"""AI COE repository tooling."""
