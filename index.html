@@ -127,12 +127,14 @@
   </main>
 
   <div class="present-controls" aria-label="Presentation controls"><button id="prevSlide" aria-label="Previous slide">←</button><span id="slideCount">1 / 1</span><button id="nextSlide" aria-label="Next slide">→</button><button id="exitPresent">Exit</button></div>
-  <footer>AI Program figures are calculated from the Excel workbook stored in this repository. Update the workbook using the same filename to refresh this site.</footer>
+  <footer>AI Program figures are calculated from the latest Excel workbook in the repository's AI Program folder. The workbook filename may change.</footer>
 
   <script>
     "use strict";
-    const WORKBOOK = "AI%20Program/AI_Program_Change_Management_Project_Plan_v81_20260916.xlsx";
-    const state = {model:null, view:"executive", slide:0};
+    const REPOSITORY = "AtriManthani/AI-Center-Of-Excellence";
+    const WORKBOOK_API = `https://api.github.com/repos/${REPOSITORY}/contents/AI%20Program?ref=main`;
+    const FALLBACK_WORKBOOK = {name:"AI_Program_Change_Management_Project_Plan_v81_20260916.xlsx",url:"AI%20Program/AI_Program_Change_Management_Project_Plan_v81_20260916.xlsx"};
+    const state = {model:null, view:"executive", slide:0, source:FALLBACK_WORKBOOK};
     const $ = id => document.getElementById(id);
     const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
     const startDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -158,6 +160,28 @@
     function objects(wb,name){const ws=wb.Sheets[name];return ws?XLSX.utils.sheet_to_json(ws,{defval:null,raw:true}):[];}
     function arrays(wb,name){const ws=wb.Sheets[name];return ws?XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true}):[];}
     function cell(wb,sheet,address){const ws=wb.Sheets[sheet];return ws&&ws[address]?ws[address].v:null;}
+    function workbookRank(name){
+      const version=String(name).match(/(?:^|[_\-\s])v(?:ersion)?[_\-\s]?(\d+(?:[._-]\d+)*)/i);
+      const date=String(name).match(/(?:19|20)\d{6}/);
+      return {date:date?Number(date[0]):0,version:version?version[1].split(/[._-]/).map(Number):[]};
+    }
+    function compareVersions(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){const difference=(a[i]||0)-(b[i]||0);if(difference)return difference;}return 0;}
+    function compareWorkbookNames(a,b){const ra=workbookRank(a.name),rb=workbookRank(b.name);return rb.date-ra.date||compareVersions(rb.version,ra.version)||b.name.localeCompare(a.name,undefined,{numeric:true,sensitivity:"base"});}
+    async function latestCommitDate(file){
+      try{const endpoint=`https://api.github.com/repos/${REPOSITORY}/commits?path=${encodeURIComponent(file.path)}&per_page=1`;const response=await fetch(endpoint,{cache:"no-store"});if(!response.ok)return 0;const commits=await response.json();return Date.parse(commits[0]?.commit?.committer?.date||commits[0]?.commit?.author?.date||"")||0;}catch{return 0;}
+    }
+    async function discoverWorkbook(){
+      try{
+        const response=await fetch(WORKBOOK_API,{cache:"no-store",headers:{Accept:"application/vnd.github+json"}});
+        if(!response.ok)throw new Error(`GitHub file discovery failed (${response.status}).`);
+        const contents=await response.json();
+        const files=contents.filter(file=>file.type==="file"&&/\.xlsx$/i.test(file.name)&&!file.name.startsWith("~$")).sort(compareWorkbookNames);
+        if(!files.length)throw new Error("No Excel workbook was found in the AI Program folder.");
+        let selected=files[0];
+        if(files.length>1){const dated=await Promise.all(files.map(async file=>({file,date:await latestCommitDate(file)})));dated.sort((a,b)=>b.date-a.date||compareWorkbookNames(a.file,b.file));if(dated[0].date)selected=dated[0].file;}
+        return {name:selected.name,url:selected.download_url||`AI%20Program/${encodeURIComponent(selected.name)}`};
+      }catch(error){console.warn(`${error.message} Using the fallback workbook.`,error);return FALLBACK_WORKBOOK;}
+    }
     function statusClass(value){const s=String(value||"").toLowerCase();if(s.includes("complete")||s.includes("on track")||s.includes("green"))return"green";if(s.includes("risk")||s.includes("progress")||s.includes("amber"))return"amber";if(s.includes("blocked")||s.includes("critical")||s.includes("red"))return"red";return"";}
     function tag(value){return `<span class="tag ${statusClass(value)}">${esc(value||"Not set")}</span>`;}
     function isOpenDecision(row){const s=String(row.Status||"").toLowerCase();return s.startsWith("open")||s==="in progress";}
@@ -205,7 +229,7 @@
     function render(){
       const m=state.model; const h=m.health.toLowerCase(); $("loading").classList.add("hidden");
       $("healthPill").className=`pill ${h}`; $("healthText").textContent=`${m.health} program health`; $("asOfText").textContent=`Status as of ${fmtDate(m.asOf)}`;
-      $("sourceText").textContent=`Source: AI Program Excel workbook · Program Owner: ${m.input.owner}`;
+      $("sourceText").textContent=`Source: ${state.source.name} · Program Owner: ${m.input.owner}`;
       $("healthPanel").className=`panel health ${h}`; $("healthHeading").textContent=m.health; $("healthRationale").textContent=reason(m);
       $("completionPct").textContent=pct(m.completion); $("completionRing").style.setProperty("--value",`${clamp(m.completion)*360}deg`);
       $("executiveKpis").innerHTML=[kpi("Plan items",m.project.length,"Across all workstreams"),kpi("Complete",m.complete,pct(m.complete/Math.max(1,m.project.length))),kpi("In progress",m.inProgress),kpi("Overdue open",m.overdue.length,pct(m.overduePct)+" of active work"),kpi("Open decisions",m.openDecisions.length,`${m.critical.length} critical`)].join("");
@@ -242,7 +266,7 @@
     $("printBtn").addEventListener("click",()=>window.print()); $("presentBtn").addEventListener("click",()=>togglePresent()); $("exitPresent").addEventListener("click",()=>togglePresent(false));
     $("prevSlide").addEventListener("click",()=>{state.slide--;updatePresentation();}); $("nextSlide").addEventListener("click",()=>{state.slide++;updatePresentation();});
     document.addEventListener("keydown",e=>{if(!document.body.classList.contains("presentation-mode"))return;if(["ArrowRight","PageDown"," "].includes(e.key)){e.preventDefault();state.slide++;updatePresentation();}if(["ArrowLeft","PageUp"].includes(e.key)){e.preventDefault();state.slide--;updatePresentation();}if(e.key==="Escape")togglePresent(false);});
-    async function load(){try{if(!window.XLSX)throw new Error("The spreadsheet reader could not load. Check the network connection and refresh.");const response=await fetch(`${WORKBOOK}?v=${Date.now()}`,{cache:"no-store"});if(!response.ok)throw new Error(`Workbook request failed (${response.status}).`);const data=await response.arrayBuffer();const wb=XLSX.read(data,{type:"array",cellDates:true});const required=["Reporting Inputs","Technical Readiness","Project Plan","Key Dates & Milestones","Risks & Open Decisions"];const missing=required.filter(name=>!wb.Sheets[name]);if(missing.length)throw new Error(`Workbook is missing required sheets: ${missing.join(", ")}`);state.model=modelFrom(wb);render();}catch(error){$("loadingText").className="error";$("loadingText").textContent=`The dashboard could not load.\n${error.message}`;document.querySelector(".spinner").style.display="none";console.error(error);}}
+    async function load(){try{if(!window.XLSX)throw new Error("The spreadsheet reader could not load. Check the network connection and refresh.");state.source=await discoverWorkbook();$("loadingText").textContent=`Reading ${state.source.name} from GitHub…`;const separator=state.source.url.includes("?")?"&":"?";const response=await fetch(`${state.source.url}${separator}v=${Date.now()}`,{cache:"no-store"});if(!response.ok)throw new Error(`Workbook request failed (${response.status}).`);const data=await response.arrayBuffer();const wb=XLSX.read(data,{type:"array",cellDates:true});const required=["Project Plan","Key Dates & Milestones","Risks & Open Decisions"];const missing=required.filter(name=>!wb.Sheets[name]);if(missing.length)throw new Error(`Workbook is missing required sheets: ${missing.join(", ")}`);state.model=modelFrom(wb);render();}catch(error){$("loadingText").className="error";$("loadingText").textContent=`The dashboard could not load.\n${error.message}`;document.querySelector(".spinner").style.display="none";console.error(error);}}
     load();
   </script>
 </body>

@@ -1,7 +1,7 @@
 # AI Program
 
-`AI_Program_Change_Management_Project_Plan_v81_20260916.xlsx` is the weekly source of truth.
+The latest Excel workbook uploaded to this folder is the weekly source of truth.
 
-Update `Reporting Inputs`, the detailed plan sheets, and `Technical Readiness`, then upload the workbook to GitHub using the same filename. The [live dashboard](https://atrimanthani.github.io/AI-Center-Of-Excellence/) reads it automatically.
+Update `Reporting Inputs`, the detailed plan sheets, and `Technical Readiness`, then upload the workbook to this folder. The filename and version may change; the [live dashboard](https://atrimanthani.github.io/AI-Center-Of-Excellence/) automatically selects the newest workbook.
 
 Use the workbook's `Executive Dashboard` sheet or the web dashboard for stakeholder presentations.
