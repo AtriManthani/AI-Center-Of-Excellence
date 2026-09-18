@@ -1,4 +1,4 @@
-# AI Center of Excellence
+# Live AI Program Dashboard
 
 Open the **[live AI Program dashboard](https://atrimanthani.github.io/AI-Center-Of-Excellence/)** for stakeholder presentations.
 
