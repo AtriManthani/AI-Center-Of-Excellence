@@ -1,0 +1,125 @@
+"use strict";
+
+const DATA_URL = `data/use-cases.json?v=${Date.now()}`;
+const PHASES = [
+  "Opportunity Identification",
+  "Opportunity Qualification",
+  "Opportunity Prioritization",
+  "Solution Design",
+  "Solution Development",
+  "Solution Testing",
+  "Solution Deployment",
+  "Solution Monitoring & Improvement",
+  "Solution Closeout"
+];
+const STATUSES = ["In Progress", "Backlog", "Live", "On Hold", "Closed"];
+const state = {data:null, view:"overview", slide:0};
+const byId = id => document.getElementById(id);
+const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[character]));
+const normal = value => String(value || "").trim().toLowerCase();
+const empty = message => `<div class="empty-state"><strong>No records to display</strong>${escapeHtml(message)}</div>`;
+const healthClass = value => ["green","amber","red"].includes(normal(value)) ? normal(value) : "neutral";
+const formatDate = value => {
+  if(!value) return "Not scheduled";
+  const date = new Date(`${value}`.length === 10 ? `${value}T12:00:00` : value);
+  return Number.isNaN(date.valueOf()) ? escapeHtml(value) : date.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+};
+const statusCount = status => state.data.useCases.filter(item => item.status === status).length;
+
+function card(item){
+  const blocker = item.blocker ? `<div class="detail"><strong>Blocker:</strong> ${escapeHtml(item.blocker)}</div>` : "";
+  const closure = item.status === "Closed" ? `<div class="detail"><strong>Closure reason:</strong> ${escapeHtml(item.closureReason || "Not recorded")}</div>` : "";
+  return `<article class="use-case-card ${healthClass(item.health)}">
+    <div class="card-top"><div><div class="use-case-id">${escapeHtml(item.id)}</div><h3>${escapeHtml(item.name)}</h3></div><span class="badge ${healthClass(item.health)}">${escapeHtml(item.health || "Not rated")}</span></div>
+    <div class="card-meta">${escapeHtml(item.department || "Department not set")} · ${escapeHtml(item.status)}</div>
+    <div class="card-latest"><strong>Latest update</strong>${escapeHtml(item.currentActivity || "No update recorded")}${blocker}${closure}</div>
+    <div class="card-footer"><span>${escapeHtml(item.owner || "Owner not set")}</span><span class="readiness">${Number(item.gateReadiness || 0)}% ready</span></div>
+  </article>`;
+}
+
+function issue(item, parent){
+  const mitigation = item.mitigationSummary ? `<div class="mitigation"><strong>Mitigation:</strong> ${escapeHtml(item.mitigationSummary)}</div>` : "";
+  return `<div class="issue-item"><div><div class="issue-parent">${escapeHtml(parent.id)} · ${escapeHtml(parent.name)}</div><strong>${escapeHtml(item.title)}</strong><div class="detail">Owner: ${escapeHtml(item.owner || "Not assigned")} · ${item.status === "Resolved" ? `Resolved ${formatDate(item.resolvedDate)}` : `Target ${formatDate(item.targetDate)}`}</div>${mitigation}</div><span class="badge ${normal(item.severity)}">${escapeHtml(item.severity)}</span></div>`;
+}
+
+function renderOverview(){
+  const items = state.data.useCases;
+  byId("recordCount").textContent = `${items.length} use case${items.length === 1 ? "" : "s"}`;
+  const values = [
+    ["Total use cases",items.length,"Current approved inventory"],
+    ["In progress",statusCount("In Progress"),"Moving through governance"],
+    ["Backlog",statusCount("Backlog"),"Qualified and waiting"],
+    ["Live",statusCount("Live"),"Operating in production"],
+    ["Needs attention",items.filter(item => ["amber","red"].includes(normal(item.health))).length,"Amber or red health"]
+  ];
+  byId("kpiGrid").innerHTML = values.map(([label,value,note]) => `<div class="kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div><div class="kpi-note">${note}</div></div>`).join("");
+  const attention = items.filter(item => normal(item.health) !== "green" || item.blocker).sort((a,b) => ({red:0,amber:1,green:2}[normal(a.health)] ?? 3)-({red:0,amber:1,green:2}[normal(b.health)] ?? 3));
+  byId("attentionList").innerHTML = attention.length ? attention.slice(0,8).map(item => `<div class="attention-item"><span class="badge ${healthClass(item.health)}">${escapeHtml(item.health)}</span><div><strong>${escapeHtml(item.name)}</strong><div class="detail">${escapeHtml(item.currentActivity || "No current activity recorded")}${item.blocker ? ` · Blocker: ${escapeHtml(item.blocker)}` : ""}</div></div><span class="date">${escapeHtml(item.phase)}</span></div>`).join("") : empty("No use cases currently require leadership attention.");
+  const health = ["Green","Amber","Red"];
+  byId("healthSummary").innerHTML = items.length ? health.map(label => {const count=items.filter(item=>normal(item.health)===normal(label)).length;const width=Math.round(count/items.length*100);return `<div class="health-row"><span>${label}</span><div class="health-bar"><i class="${normal(label)}" style="width:${width}%"></i></div><strong>${count}</strong></div>`;}).join("") : empty("Health appears after the first use case is published.");
+  const decisions = items.filter(item => item.nextDecision || item.nextDecisionDate).sort((a,b) => String(a.nextDecisionDate || "9999").localeCompare(String(b.nextDecisionDate || "9999")));
+  byId("decisionList").innerHTML = decisions.length ? decisions.slice(0,10).map(item => `<div class="decision-item"><span class="date">${formatDate(item.nextDecisionDate)}</span><div><strong>${escapeHtml(item.nextDecision || "Decision not described")}</strong><div class="detail">${escapeHtml(item.id)} · ${escapeHtml(item.name)} · ${escapeHtml(item.phase)}</div></div><span class="badge neutral">${escapeHtml(item.status)}</span></div>`).join("") : empty("No upcoming decisions have been published.");
+}
+
+function populateFilters(){
+  const definitions = [
+    ["statusFilter",STATUSES],
+    ["healthFilter",["Green","Amber","Red"]],
+    ["departmentFilter",[...new Set(state.data.useCases.map(item => item.department).filter(Boolean))].sort()]
+  ];
+  definitions.forEach(([id,values]) => {const element=byId(id);while(element.options.length>1) element.remove(1);values.forEach(value=>element.add(new Option(value,value)));});
+}
+
+function renderPipeline(){
+  const query=normal(byId("searchFilter").value),status=byId("statusFilter").value,health=byId("healthFilter").value,department=byId("departmentFilter").value;
+  const matches=state.data.useCases.filter(item => (!query || [item.id,item.name,item.department,item.owner,item.currentActivity].some(value=>normal(value).includes(query))) && (!status || item.status===status) && (!health || item.health===health) && (!department || item.department===department));
+  byId("pipelineBoard").innerHTML = PHASES.map(phase => {const phaseItems=matches.filter(item=>item.phase===phase);return `<section class="phase-column"><h3 class="phase-title">${escapeHtml(phase)}<span>${phaseItems.length}</span></h3><div class="phase-cards">${phaseItems.length?phaseItems.map(card).join(""):`<div class="detail">No use cases</div>`}</div></section>`;}).join("");
+}
+
+function renderOperationalViews(){
+  const live=state.data.useCases.filter(item=>item.status==="Live");
+  byId("productionGrid").innerHTML=live.length?live.map(card).join(""):empty("No live use cases have been published.");
+  const closed=state.data.useCases.filter(item=>item.status==="Closed");
+  byId("closedGrid").innerHTML=closed.length?closed.map(card).join(""):empty("No closed use cases have been published.");
+  const joined=state.data.useCases.flatMap(parent=>(parent.issues||[]).map(record=>({record,parent})));
+  const open=joined.filter(({record})=>record.status!=="Resolved");
+  const resolved=joined.filter(({record})=>record.status==="Resolved");
+  byId("openIssues").innerHTML=open.length?open.map(({record,parent})=>issue(record,parent)).join(""):empty("No open production issues.");
+  byId("resolvedIssues").innerHTML=resolved.length?resolved.map(({record,parent})=>issue(record,parent)).join(""):empty("No resolved issues have been published.");
+}
+
+function selectView(view){
+  state.view=view;state.slide=0;
+  document.querySelectorAll(".view").forEach(element=>element.classList.toggle("active",element.id===view));
+  document.querySelectorAll(".tabs button").forEach(element=>element.classList.toggle("active",element.dataset.view===view));
+  updatePresentation();
+}
+function slides(){return [...document.querySelectorAll(`#${state.view} .slide`)];}
+function updatePresentation(){const list=slides();state.slide=Math.max(0,Math.min(state.slide,Math.max(0,list.length-1)));list.forEach((element,index)=>element.classList.toggle("present-active",index===state.slide));byId("slidePosition").textContent=`${state.slide+1} / ${Math.max(1,list.length)}`;}
+function togglePresentation(force){const enabled=force??!document.body.classList.contains("presentation-mode");document.body.classList.toggle("presentation-mode",enabled);byId("presentButton").textContent=enabled?"Exit":"Present";state.slide=0;updatePresentation();if(enabled&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});if(!enabled&&document.fullscreenElement)document.exitFullscreen().catch(()=>{});}
+
+async function load(){
+  try{
+    const response=await fetch(DATA_URL,{cache:"no-store"});
+    if(!response.ok) throw new Error(`Inventory request failed (${response.status}).`);
+    const data=await response.json();
+    if(!Array.isArray(data.useCases)) throw new Error("Inventory data is not in the expected format.");
+    state.data=data;
+    byId("freshness").textContent=data.generatedAt?`Published ${formatDate(data.generatedAt)}`:"Awaiting first approved inventory publication";
+    renderOverview();populateFilters();renderPipeline();renderOperationalViews();
+    byId("loading").classList.add("hidden");
+  }catch(error){
+    byId("loading").innerHTML=`<div class="empty-state"><strong>The AI Inventory could not load</strong>${escapeHtml(error.message)}</div>`;
+    console.error(error);
+  }
+}
+
+document.querySelectorAll(".tabs button").forEach(button=>button.addEventListener("click",()=>selectView(button.dataset.view)));
+["searchFilter","statusFilter","healthFilter","departmentFilter"].forEach(id=>byId(id).addEventListener(id==="searchFilter"?"input":"change",renderPipeline));
+byId("printButton").addEventListener("click",()=>window.print());
+byId("presentButton").addEventListener("click",()=>togglePresentation());
+byId("exitPresentation").addEventListener("click",()=>togglePresentation(false));
+byId("previousSlide").addEventListener("click",()=>{state.slide--;updatePresentation();});
+byId("nextSlide").addEventListener("click",()=>{state.slide++;updatePresentation();});
+document.addEventListener("keydown",event=>{if(!document.body.classList.contains("presentation-mode"))return;if(["ArrowRight","PageDown"," "].includes(event.key)){event.preventDefault();state.slide++;updatePresentation();}if(["ArrowLeft","PageUp"].includes(event.key)){event.preventDefault();state.slide--;updatePresentation();}if(event.key==="Escape")togglePresentation(false);});
+load();

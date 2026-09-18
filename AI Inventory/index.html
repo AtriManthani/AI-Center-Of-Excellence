@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#082f49">
+  <meta name="description" content="Leadership view of the City of Cleveland AI use-case portfolio.">
+  <title>AI Inventory | City of Cleveland</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to inventory</a>
+  <div class="loading" id="loading" role="status"><div class="spinner"></div><p>Loading the AI Inventory…</p></div>
+
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="brand-mark" aria-hidden="true">CLE</div>
+      <div class="brand-copy">
+        <span>City of Cleveland · AI Center of Excellence</span>
+        <h1>AI Inventory</h1>
+        <p>Latest use-case status from governance through measurable impact</p>
+      </div>
+      <div class="header-actions">
+        <a class="button secondary" href="../">AI Program</a>
+        <button class="button secondary" id="printButton" type="button">Print</button>
+        <button class="button primary" id="presentButton" type="button">Present</button>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="Inventory views">
+      <button class="active" data-view="overview" type="button">Leadership Overview</button>
+      <button data-view="pipeline" type="button">Governance Pipeline</button>
+      <button data-view="production" type="button">Production</button>
+      <button data-view="issues" type="button">Issues</button>
+      <button data-view="closed" type="button">Closed</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="status-row">
+      <span class="freshness" id="freshness">Awaiting first approved inventory publication</span>
+      <span class="source">Sanitized leadership view · Detailed governance records remain private</span>
+    </div>
+
+    <section class="view active" id="overview" aria-labelledby="overview-title">
+      <div class="slide">
+        <div class="section-heading">
+          <div><span class="eyebrow">Portfolio at a glance</span><h2 id="overview-title">Current AI use-case status</h2></div>
+          <span class="record-count" id="recordCount">0 use cases</span>
+        </div>
+        <div class="kpi-grid" id="kpiGrid"></div>
+      </div>
+      <div class="slide dashboard-grid">
+        <article class="panel span-two">
+          <div class="panel-heading"><div><span class="eyebrow">Latest status</span><h2>Leadership attention</h2></div></div>
+          <div class="attention-list" id="attentionList"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-heading"><div><span class="eyebrow">Health</span><h2>Portfolio health</h2></div></div>
+          <div class="health-summary" id="healthSummary"></div>
+        </article>
+      </div>
+      <div class="slide panel">
+        <div class="panel-heading"><div><span class="eyebrow">Upcoming</span><h2>Next decisions</h2></div></div>
+        <div class="decision-list" id="decisionList"></div>
+      </div>
+    </section>
+
+    <section class="view" id="pipeline" aria-labelledby="pipeline-title">
+      <div class="section-heading">
+        <div><span class="eyebrow">Governance lifecycle</span><h2 id="pipeline-title">Use cases by current phase</h2><p>One card per use case, showing only the latest approved status.</p></div>
+      </div>
+      <div class="filters" aria-label="Inventory filters">
+        <input id="searchFilter" type="search" placeholder="Search use case, department, or owner">
+        <select id="statusFilter" aria-label="Filter by status"><option value="">All statuses</option></select>
+        <select id="healthFilter" aria-label="Filter by health"><option value="">All health ratings</option></select>
+        <select id="departmentFilter" aria-label="Filter by department"><option value="">All departments</option></select>
+      </div>
+      <div class="pipeline" id="pipelineBoard"></div>
+    </section>
+
+    <section class="view" id="production" aria-labelledby="production-title">
+      <div class="section-heading"><div><span class="eyebrow">Operational inventory</span><h2 id="production-title">Live AI use cases</h2><p>Deployed solutions and their latest monitoring position.</p></div></div>
+      <div class="card-grid" id="productionGrid"></div>
+    </section>
+
+    <section class="view" id="issues" aria-labelledby="issues-title">
+      <div class="section-heading"><div><span class="eyebrow">Monitoring and mitigation</span><h2 id="issues-title">Open and resolved issues</h2><p>Production concerns remain linked to their parent use case.</p></div></div>
+      <div class="issue-columns">
+        <article class="panel"><div class="panel-heading"><h2>Open issues</h2></div><div id="openIssues"></div></article>
+        <article class="panel"><div class="panel-heading"><h2>Recently resolved</h2></div><div id="resolvedIssues"></div></article>
+      </div>
+    </section>
+
+    <section class="view" id="closed" aria-labelledby="closed-title">
+      <div class="section-heading"><div><span class="eyebrow">Lifecycle outcomes</span><h2 id="closed-title">Closed use cases</h2><p>Completed, rejected, withdrawn, and decommissioned records remain visible.</p></div></div>
+      <div class="card-grid" id="closedGrid"></div>
+    </section>
+  </main>
+
+  <div class="present-controls" aria-label="Presentation controls">
+    <button id="previousSlide" type="button" aria-label="Previous slide">←</button>
+    <span id="slidePosition">1 / 1</span>
+    <button id="nextSlide" type="button" aria-label="Next slide">→</button>
+    <button id="exitPresentation" type="button">Exit</button>
+  </div>
+
+  <footer>AI Inventory · Sanitized leadership view · Source records are maintained in the private AI Governance Workspace</footer>
+  <script src="assets/dashboard.js" defer></script>
+</body>
+</html>

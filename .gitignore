@@ -21,6 +21,7 @@ coverage/
 __pycache__/
 *.py[cod]
 *.log
+/.private-governance-workspace/
 
 # Office temporary files
 ~$*.docx
