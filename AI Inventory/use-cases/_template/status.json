@@ -13,8 +13,6 @@
   "lastUpdated": "YYYY-MM-DD",
   "summary": "Short, public description of the use case.",
   "closureReason": null,
-  "healthOverride": null,
-  "healthOverrideReason": null,
   "publish": false,
   "issues": []
 }

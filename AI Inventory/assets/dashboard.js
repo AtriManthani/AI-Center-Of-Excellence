@@ -27,25 +27,12 @@ const byId = id => document.getElementById(id);
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[character]));
 const normal = value => String(value || "").trim().toLowerCase();
 const empty = message => `<div class="empty-state"><strong>No records to display</strong>${escapeHtml(message)}</div>`;
-const healthClass = value => ["green","amber","red"].includes(normal(value)) ? normal(value) : "neutral";
 const formatDate = value => {
   if(!value) return "Not scheduled";
   const date = new Date(`${value}`.length === 10 ? `${value}T12:00:00` : value);
   return Number.isNaN(date.valueOf()) ? escapeHtml(value) : date.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
 };
 const statusCount = status => state.data.useCases.filter(item => item.status === status).length;
-
-function calculateHealth(record){
-  if(["Green","Amber","Red"].includes(record.healthOverride)) return record.healthOverride;
-  const openIssues=(record.issues||[]).filter(issue=>issue.status!=="Resolved");
-  if(openIssues.some(issue=>["Critical","High"].includes(issue.severity))) return "Red";
-  if(record.blocker||record.status==="On Hold") return "Amber";
-  if(record.nextDecisionDate&&["In Progress","Live"].includes(record.status)){
-    const target=new Date(`${record.nextDecisionDate}T23:59:59`);
-    if(!Number.isNaN(target.valueOf())&&target<new Date()) return "Amber";
-  }
-  return "Green";
-}
 
 function publicRecord(record){
   const checklist=record.checklist||{};
@@ -57,7 +44,7 @@ function publicRecord(record){
   const phaseFolderUrl=folderUrl&&phaseFolder?`${folderUrl}/${encodeURIComponent(phaseFolder)}`:folderUrl;
   return {
     id:record.id,name:record.name,department:record.department,owner:record.owner,
-    phase:record.phase,status:record.status,health:calculateHealth(record),
+    phase:record.phase,status:record.status,
     gateReadiness,checklistDone:done,checklistTotal:total,
     reviewStatus:record.reviewStatus||"Not Started",currentActivity:record.currentActivity,
     blocker:record.blocker,nextDecision:record.nextDecision,
@@ -112,8 +99,8 @@ function card(item){
   const closure = item.status === "Closed" ? `<div class="detail"><strong>Closure reason:</strong> ${escapeHtml(item.closureReason || "Not recorded")}</div>` : "";
   const checklist=item.checklistTotal?`${item.checklistDone} of ${item.checklistTotal} checks`:`${item.gateReadiness}% complete`;
   const actions=item.folderUrl?`<div class="card-actions"><a href="${item.folderUrl}" target="_blank" rel="noopener">Open Files</a><a href="${item.phaseFolderUrl}/CHECKLIST.md" target="_blank" rel="noopener">Open Checklist</a></div>`:"";
-  return `<article class="use-case-card ${healthClass(item.health)}">
-    <div class="card-top"><div><div class="use-case-id">${escapeHtml(item.id)}</div><h3>${escapeHtml(item.name)}</h3></div><span class="badge ${healthClass(item.health)}">${escapeHtml(item.health || "Not rated")}</span></div>
+  return `<article class="use-case-card">
+    <div class="card-top"><div><div class="use-case-id">${escapeHtml(item.id)}</div><h3>${escapeHtml(item.name)}</h3></div><span class="badge">${escapeHtml(item.phase)}</span></div>
     <div class="card-meta">${escapeHtml(item.department || "Department not set")} · ${escapeHtml(item.status)} · Review: ${escapeHtml(item.reviewStatus)}</div>
     <div class="card-latest"><strong>Latest update</strong>${escapeHtml(item.currentActivity || "No update recorded")}${blocker}${closure}</div>
     <div class="card-footer"><span>${escapeHtml(item.owner || "Owner not set")}</span><span class="readiness">${escapeHtml(checklist)}</span></div>${actions}
@@ -133,13 +120,11 @@ function renderOverview(){
     ["In progress",statusCount("In Progress"),"Moving through governance"],
     ["Backlog",statusCount("Backlog"),"Qualified and waiting"],
     ["Live",statusCount("Live"),"Operating in production"],
-    ["Needs attention",items.filter(item => ["amber","red"].includes(normal(item.health))).length,"Amber or red health"]
+    ["On hold",statusCount("On Hold"),"Temporarily paused"]
   ];
   byId("kpiGrid").innerHTML = values.map(([label,value,note]) => `<div class="kpi"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div><div class="kpi-note">${note}</div></div>`).join("");
-  const attention = items.filter(item => normal(item.health) !== "green" || item.blocker).sort((a,b) => ({red:0,amber:1,green:2}[normal(a.health)] ?? 3)-({red:0,amber:1,green:2}[normal(b.health)] ?? 3));
-  byId("attentionList").innerHTML = attention.length ? attention.slice(0,8).map(item => `<div class="attention-item"><span class="badge ${healthClass(item.health)}">${escapeHtml(item.health)}</span><div><strong>${escapeHtml(item.name)}</strong><div class="detail">${escapeHtml(item.currentActivity || "No current activity recorded")}${item.blocker ? ` · Blocker: ${escapeHtml(item.blocker)}` : ""}</div></div><span class="date">${escapeHtml(item.phase)}</span></div>`).join("") : empty("No use cases currently require leadership attention.");
-  const health = ["Green","Amber","Red"];
-  byId("healthSummary").innerHTML = items.length ? health.map(label => {const count=items.filter(item=>normal(item.health)===normal(label)).length;const width=Math.round(count/items.length*100);return `<div class="health-row"><span>${label}</span><div class="health-bar"><i class="${normal(label)}" style="width:${width}%"></i></div><strong>${count}</strong></div>`;}).join("") : empty("Health appears after the first use case is published.");
+  const updates=[...items].sort((a,b)=>String(b.lastUpdated||"").localeCompare(String(a.lastUpdated||"")));
+  byId("latestUpdates").innerHTML = updates.length ? updates.slice(0,8).map(item => `<div class="update-item"><span class="badge">${escapeHtml(item.status)}</span><div><strong>${escapeHtml(item.name)}</strong><div class="detail">${escapeHtml(item.currentActivity || "No current activity recorded")}${item.blocker ? ` · Blocker: ${escapeHtml(item.blocker)}` : ""}</div></div><span class="date">${escapeHtml(item.phase)}</span></div>`).join("") : empty("No use-case updates have been published.");
   const decisions = items.filter(item => item.nextDecision || item.nextDecisionDate).sort((a,b) => String(a.nextDecisionDate || "9999").localeCompare(String(b.nextDecisionDate || "9999")));
   byId("decisionList").innerHTML = decisions.length ? decisions.slice(0,10).map(item => `<div class="decision-item"><span class="date">${formatDate(item.nextDecisionDate)}</span><div><strong>${escapeHtml(item.nextDecision || "Decision not described")}</strong><div class="detail">${escapeHtml(item.id)} · ${escapeHtml(item.name)} · ${escapeHtml(item.phase)}</div></div><span class="badge neutral">${escapeHtml(item.status)}</span></div>`).join("") : empty("No upcoming decisions have been published.");
 }
@@ -147,15 +132,14 @@ function renderOverview(){
 function populateFilters(){
   const definitions = [
     ["statusFilter",STATUSES],
-    ["healthFilter",["Green","Amber","Red"]],
     ["departmentFilter",[...new Set(state.data.useCases.map(item => item.department).filter(Boolean))].sort()]
   ];
   definitions.forEach(([id,values]) => {const element=byId(id);while(element.options.length>1) element.remove(1);values.forEach(value=>element.add(new Option(value,value)));});
 }
 
 function renderPipeline(){
-  const query=normal(byId("searchFilter").value),status=byId("statusFilter").value,health=byId("healthFilter").value,department=byId("departmentFilter").value;
-  const matches=state.data.useCases.filter(item => (!query || [item.id,item.name,item.department,item.owner,item.currentActivity].some(value=>normal(value).includes(query))) && (!status || item.status===status) && (!health || item.health===health) && (!department || item.department===department));
+  const query=normal(byId("searchFilter").value),status=byId("statusFilter").value,department=byId("departmentFilter").value;
+  const matches=state.data.useCases.filter(item => (!query || [item.id,item.name,item.department,item.owner,item.currentActivity].some(value=>normal(value).includes(query))) && (!status || item.status===status) && (!department || item.department===department));
   byId("pipelineBoard").innerHTML = PHASES.map(phase => {const phaseItems=matches.filter(item=>item.phase===phase);return `<section class="phase-column"><h3 class="phase-title">${escapeHtml(phase)}<span>${phaseItems.length}</span></h3><div class="phase-cards">${phaseItems.length?phaseItems.map(card).join(""):`<div class="detail">No use cases</div>`}</div></section>`;}).join("");
 }
 
@@ -198,7 +182,7 @@ async function load(){
 }
 
 document.querySelectorAll(".tabs button").forEach(button=>button.addEventListener("click",()=>selectView(button.dataset.view)));
-["searchFilter","statusFilter","healthFilter","departmentFilter"].forEach(id=>byId(id).addEventListener(id==="searchFilter"?"input":"change",renderPipeline));
+["searchFilter","statusFilter","departmentFilter"].forEach(id=>byId(id).addEventListener(id==="searchFilter"?"input":"change",renderPipeline));
 byId("printButton").addEventListener("click",()=>window.print());
 byId("presentButton").addEventListener("click",()=>togglePresentation());
 byId("exitPresentation").addEventListener("click",()=>togglePresentation(false));

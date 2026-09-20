@@ -25,7 +25,6 @@ PHASES = {
     "Close",
 }
 STATUSES = {"In Progress", "Backlog", "Live", "On Hold", "Closed"}
-HEALTH = {"Green", "Amber", "Red"}
 REVIEW_STATUSES = {"Not Started", "In Review", "Approved", "Changes Needed", "Not Required"}
 PHASE_FOLDERS = {
     "Intake": "01 Intake",
@@ -51,25 +50,6 @@ def parse_iso_date(value: object, field: str, errors: list[str], source: Path) -
     except ValueError:
         errors.append(f"{source}: {field} must use YYYY-MM-DD")
         return None
-
-
-def calculate_health(record: dict, today: date) -> str:
-    override = record.get("healthOverride")
-    if override in HEALTH:
-        return override
-    open_issues = [issue for issue in record.get("issues", []) if issue.get("status") != "Resolved"]
-    if any(issue.get("severity") in {"Critical", "High"} for issue in open_issues):
-        return "Red"
-    if record.get("blocker") or record.get("status") == "On Hold":
-        return "Amber"
-    target = record.get("nextDecisionDate")
-    if target:
-        try:
-            if date.fromisoformat(target) < today and record.get("status") in {"In Progress", "Live"}:
-                return "Amber"
-        except ValueError:
-            pass
-    return "Green"
 
 
 def public_issue(issue: dict) -> dict:
@@ -109,10 +89,6 @@ def validate_record(record: dict, source: Path, errors: list[str]) -> None:
         errors.append(f"{source}: unknown governance phase '{record.get('phase')}'")
     if record.get("status") not in STATUSES:
         errors.append(f"{source}: unknown status '{record.get('status')}'")
-    if record.get("healthOverride") not in HEALTH | {None, ""}:
-        errors.append(f"{source}: healthOverride must be Green, Amber, Red, or null")
-    if record.get("healthOverride") and not record.get("healthOverrideReason"):
-        errors.append(f"{source}: healthOverrideReason is required when healthOverride is set")
     if record.get("reviewStatus") not in REVIEW_STATUSES:
         errors.append(f"{source}: unsupported reviewStatus '{record.get('reviewStatus')}'")
     if record.get("closureReason") not in CLOSURE_REASONS:
@@ -138,7 +114,6 @@ def export() -> tuple[list[dict], list[str]]:
     errors: list[str] = []
     published: list[dict] = []
     seen_ids: set[str] = set()
-    today = date.today()
     for source in sorted(USE_CASES.glob("*/status.json")):
         if source.parent.name.startswith("_"):
             continue
@@ -162,7 +137,6 @@ def export() -> tuple[list[dict], list[str]]:
             "owner": record.get("owner"),
             "phase": record.get("phase"),
             "status": record.get("status"),
-            "health": calculate_health(record, today),
             "reviewStatus": record.get("reviewStatus"),
             "checklist": {"done": done, "total": total},
             "checklistDone": done,

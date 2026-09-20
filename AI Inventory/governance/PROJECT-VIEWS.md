@@ -7,7 +7,7 @@ When the AI CoE creates a GitHub Project for this repository, use these saved vi
 - Layout: Board
 - Column field: Governance Phase
 - Filter: `Status:In Progress`
-- Card fields: Use Case ID, Status, Health, Checklist, Review, Current Update, Next Step Date
+- Card fields: Use Case ID, Status, Checklist, Review, Current Update, Next Step Date
 
 ## Priority Backlog
 
@@ -19,7 +19,7 @@ When the AI CoE creates a GitHub Project for this repository, use these saved vi
 
 - Layout: Table
 - Filter: `Status:Live`
-- Group by: Health
+- Group by: Department
 
 ## On Hold
 
