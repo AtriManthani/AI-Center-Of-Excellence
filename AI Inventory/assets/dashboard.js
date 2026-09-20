@@ -6,16 +6,21 @@ const DATA_URL = `data/use-cases.json?v=${Date.now()}`;
 const TREE_API = `https://api.github.com/repos/${REPOSITORY}/git/trees/${BRANCH}?recursive=1`;
 const RECORD_PREFIX = "AI Inventory/use-cases/";
 const PHASES = [
-  "Opportunity Identification",
-  "Opportunity Qualification",
-  "Opportunity Prioritization",
-  "Solution Design",
-  "Solution Development",
-  "Solution Testing",
-  "Solution Deployment",
-  "Solution Monitoring & Improvement",
-  "Solution Closeout"
+  "Intake",
+  "Qualify",
+  "Prioritize",
+  "Design",
+  "Develop",
+  "Test",
+  "Deploy",
+  "Monitor",
+  "Close"
 ];
+const PHASE_FOLDERS = {
+  Intake:"01 Intake", Qualify:"02 Qualify", Prioritize:"03 Prioritize",
+  Design:"04 Design", Develop:"05 Develop", Test:"06 Test",
+  Deploy:"07 Deploy", Monitor:"08 Monitor", Close:"09 Close"
+};
 const STATUSES = ["In Progress", "Backlog", "Live", "On Hold", "Closed"];
 const state = {data:null, view:"overview", slide:0};
 const byId = id => document.getElementById(id);
@@ -43,13 +48,21 @@ function calculateHealth(record){
 }
 
 function publicRecord(record){
+  const checklist=record.checklist||{};
+  const done=Number(checklist.done||0),total=Number(checklist.total||0);
+  const gateReadiness=total?Math.round(done/total*100):Number(record.gateReadiness||0);
+  const encodedPath=String(record._folderPath||"").split("/").map(encodeURIComponent).join("/");
+  const folderUrl=encodedPath?`https://github.com/${REPOSITORY}/tree/${BRANCH}/${encodedPath}`:null;
+  const phaseFolder=PHASE_FOLDERS[record.phase];
+  const phaseFolderUrl=folderUrl&&phaseFolder?`${folderUrl}/${encodeURIComponent(phaseFolder)}`:folderUrl;
   return {
     id:record.id,name:record.name,department:record.department,owner:record.owner,
     phase:record.phase,status:record.status,health:calculateHealth(record),
-    gateReadiness:record.gateReadiness,currentActivity:record.currentActivity,
+    gateReadiness,checklistDone:done,checklistTotal:total,
+    reviewStatus:record.reviewStatus||"Not Started",currentActivity:record.currentActivity,
     blocker:record.blocker,nextDecision:record.nextDecision,
     nextDecisionDate:record.nextDecisionDate,lastUpdated:record.lastUpdated,
-    summary:record.summary,closureReason:record.closureReason,
+    summary:record.summary,closureReason:record.closureReason,folderUrl,phaseFolderUrl,
     issues:(record.issues||[]).filter(issue=>issue.publish).map(issue=>({
       id:issue.id,title:issue.title,severity:issue.severity,status:issue.status,
       owner:issue.owner,targetDate:issue.targetDate,resolvedDate:issue.resolvedDate,
@@ -58,16 +71,30 @@ function publicRecord(record){
   };
 }
 
+function checklistProgress(markdown){
+  const items=[...String(markdown||"").matchAll(/^\s*-\s*\[([ xX])\]/gm)];
+  return {done:items.filter(item=>normal(item[1])==="x").length,total:items.length};
+}
+
 async function discoverInventory(){
   const response=await fetch(TREE_API,{headers:{Accept:"application/vnd.github+json"},cache:"no-store"});
   if(!response.ok) throw new Error(`GitHub inventory discovery failed (${response.status}).`);
   const tree=await response.json();
-  const paths=(tree.tree||[]).map(item=>item.path).filter(path=>path.startsWith(RECORD_PREFIX)&&path.endsWith("/use-case.json")&&!path.includes("/_template/"));
+  const paths=(tree.tree||[]).map(item=>item.path).filter(path=>path.startsWith(RECORD_PREFIX)&&path.endsWith("/status.json")&&!path.includes("/_template/"));
   const records=await Promise.all(paths.map(async path=>{
     const url=`https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/${path.split("/").map(encodeURIComponent).join("/")}?v=${Date.now()}`;
     const recordResponse=await fetch(url,{cache:"no-store"});
     if(!recordResponse.ok) throw new Error(`Could not read ${path}.`);
-    return recordResponse.json();
+    const record=await recordResponse.json();
+    record._folderPath=path.slice(0,-"/status.json".length);
+    const phaseFolder=PHASE_FOLDERS[record.phase];
+    if(phaseFolder){
+      const checklistPath=`${record._folderPath}/${phaseFolder}/CHECKLIST.md`;
+      const checklistUrl=`https://raw.githubusercontent.com/${REPOSITORY}/${BRANCH}/${checklistPath.split("/").map(encodeURIComponent).join("/")}?v=${Date.now()}`;
+      const checklistResponse=await fetch(checklistUrl,{cache:"no-store"});
+      if(checklistResponse.ok) record.checklist=checklistProgress(await checklistResponse.text());
+    }
+    return record;
   }));
   const useCases=records.filter(record=>record.publish).map(publicRecord).sort((a,b)=>String(a.id).localeCompare(String(b.id)));
   const latest=useCases.map(item=>item.lastUpdated).filter(Boolean).sort().at(-1)||null;
@@ -83,11 +110,13 @@ async function fallbackInventory(){
 function card(item){
   const blocker = item.blocker ? `<div class="detail"><strong>Blocker:</strong> ${escapeHtml(item.blocker)}</div>` : "";
   const closure = item.status === "Closed" ? `<div class="detail"><strong>Closure reason:</strong> ${escapeHtml(item.closureReason || "Not recorded")}</div>` : "";
+  const checklist=item.checklistTotal?`${item.checklistDone} of ${item.checklistTotal} checks`:`${item.gateReadiness}% complete`;
+  const actions=item.folderUrl?`<div class="card-actions"><a href="${item.folderUrl}" target="_blank" rel="noopener">Open Files</a><a href="${item.phaseFolderUrl}/CHECKLIST.md" target="_blank" rel="noopener">Open Checklist</a></div>`:"";
   return `<article class="use-case-card ${healthClass(item.health)}">
     <div class="card-top"><div><div class="use-case-id">${escapeHtml(item.id)}</div><h3>${escapeHtml(item.name)}</h3></div><span class="badge ${healthClass(item.health)}">${escapeHtml(item.health || "Not rated")}</span></div>
-    <div class="card-meta">${escapeHtml(item.department || "Department not set")} · ${escapeHtml(item.status)}</div>
+    <div class="card-meta">${escapeHtml(item.department || "Department not set")} · ${escapeHtml(item.status)} · Review: ${escapeHtml(item.reviewStatus)}</div>
     <div class="card-latest"><strong>Latest update</strong>${escapeHtml(item.currentActivity || "No update recorded")}${blocker}${closure}</div>
-    <div class="card-footer"><span>${escapeHtml(item.owner || "Owner not set")}</span><span class="readiness">${Number(item.gateReadiness || 0)}% ready</span></div>
+    <div class="card-footer"><span>${escapeHtml(item.owner || "Owner not set")}</span><span class="readiness">${escapeHtml(checklist)}</span></div>${actions}
   </article>`;
 }
 

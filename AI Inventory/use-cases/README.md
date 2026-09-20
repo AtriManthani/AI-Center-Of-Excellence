@@ -1,8 +1,11 @@
 # Use-case records
 
-Each child folder represents one permanent AI use case and begins with its immutable identifier, for example:
+Each folder represents one permanent AI use case and begins with its ID, for example:
 
 `AI-0001-resident-services-assistant`
 
-Copy `_template`, rename the folder, and complete `use-case.json`. Keep supporting evidence inside that use-case folder. Do not create a second record when the use case changes phase, enters production, moves to backlog, or closes.
+Copy `_template`, rename it, and update `status.json`.
 
+Each use case has nine plainly named phase folders. Upload a form, review, or supporting file directly into the phase where it belongs. Update the checklist in that same folder.
+
+Do not create a new use-case folder when the phase or status changes. The same folder follows the use case from Intake through Close.

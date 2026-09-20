@@ -1,5 +1,5 @@
 name: New AI use case
-description: Submit a proposed AI use case for Opportunity Identification.
+description: Submit a proposed AI use case for Intake.
 title: "[USE CASE] "
 labels: ["use-case", "phase:intake"]
 body:
@@ -81,4 +81,3 @@ body:
       options:
         - label: The information is appropriate for the public AI Governance Workspace.
           required: true
-

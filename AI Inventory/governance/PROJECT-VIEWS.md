@@ -7,7 +7,7 @@ When the AI CoE creates a GitHub Project for this repository, use these saved vi
 - Layout: Board
 - Column field: Governance Phase
 - Filter: `Status:In Progress`
-- Card fields: Use Case ID, Status, Health, Gate Readiness, Current Activity, Next Decision Date
+- Card fields: Use Case ID, Status, Health, Checklist, Review, Current Update, Next Step Date
 
 ## Priority Backlog
 

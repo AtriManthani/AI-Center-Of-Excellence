@@ -15,15 +15,15 @@ body:
     attributes:
       label: Current governance phase
       options:
-        - Opportunity Identification
-        - Opportunity Qualification
-        - Opportunity Prioritization
-        - Solution Design
-        - Solution Development
-        - Solution Testing
-        - Solution Deployment
-        - Solution Monitoring & Improvement
-        - Solution Closeout
+        - Intake
+        - Qualify
+        - Prioritize
+        - Design
+        - Develop
+        - Test
+        - Deploy
+        - Monitor
+        - Close
     validations:
       required: true
   - type: dropdown
@@ -33,6 +33,13 @@ body:
       options: [In Progress, Backlog, Live, On Hold, Closed]
     validations:
       required: true
+  - type: dropdown
+    id: review_status
+    attributes:
+      label: Review status
+      options: [Not Started, In Review, Approved, Changes Needed, Not Required]
+    validations:
+      required: true
   - type: textarea
     id: latest
     attributes:
@@ -40,18 +47,11 @@ body:
       description: State what is happening now in one leadership-ready sentence.
     validations:
       required: true
-  - type: input
-    id: readiness
-    attributes:
-      label: Gate readiness percentage
-      placeholder: 0-100
-    validations:
-      required: true
   - type: textarea
     id: missing
     attributes:
-      label: Missing requirements or blockers
-      description: Checklists are advisory; record material gaps clearly.
+      label: Missing items or blockers
+      description: Record anything still needed in plain language.
     validations:
       required: false
   - type: input
@@ -74,4 +74,3 @@ body:
       options: ["Yes", "No"]
     validations:
       required: true
-

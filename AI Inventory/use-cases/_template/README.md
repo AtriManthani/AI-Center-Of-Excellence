@@ -1,9 +1,12 @@
-# AI-0000 — Use-case name
+# AI-0000 — Use-case Name
 
-This folder is the public, non-sensitive evidence home for one permanent use case.
+This is the permanent home for one use case.
 
-- Keep `use-case.json` current; it drives the sanitized dashboard export.
-- Place phase-specific documents in `evidence`.
-- Place detailed operational evidence in `issues` and link the corresponding GitHub issue.
-- Set `publish` to `true` only when the summary fields are approved for public presentation.
+1. Rename this folder with the real ID and short name.
+2. Update `status.json`; it controls the dashboard card.
+3. Open the current phase folder.
+4. Upload forms and review files directly into that folder.
+5. Check completed boxes in `CHECKLIST.md`; the dashboard counts them automatically.
+6. Set `publish` to `true` when the card is ready to display.
 
+Everything in this repository is public. Upload only non-sensitive information.

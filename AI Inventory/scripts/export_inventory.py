@@ -14,18 +14,30 @@ USE_CASES = ROOT / "use-cases"
 OUTPUT = ROOT / "dist" / "use-cases.json"
 
 PHASES = {
-    "Opportunity Identification",
-    "Opportunity Qualification",
-    "Opportunity Prioritization",
-    "Solution Design",
-    "Solution Development",
-    "Solution Testing",
-    "Solution Deployment",
-    "Solution Monitoring & Improvement",
-    "Solution Closeout",
+    "Intake",
+    "Qualify",
+    "Prioritize",
+    "Design",
+    "Develop",
+    "Test",
+    "Deploy",
+    "Monitor",
+    "Close",
 }
 STATUSES = {"In Progress", "Backlog", "Live", "On Hold", "Closed"}
 HEALTH = {"Green", "Amber", "Red"}
+REVIEW_STATUSES = {"Not Started", "In Review", "Approved", "Changes Needed", "Not Required"}
+PHASE_FOLDERS = {
+    "Intake": "01 Intake",
+    "Qualify": "02 Qualify",
+    "Prioritize": "03 Prioritize",
+    "Design": "04 Design",
+    "Develop": "05 Develop",
+    "Test": "06 Test",
+    "Deploy": "07 Deploy",
+    "Monitor": "08 Monitor",
+    "Close": "09 Close",
+}
 SEVERITIES = {"Critical", "High", "Medium", "Low"}
 ISSUE_STATUSES = {"Open", "Monitoring", "Resolved"}
 CLOSURE_REASONS = {None, "Completed", "Rejected", "Withdrawn", "Decommissioned"}
@@ -73,6 +85,22 @@ def public_issue(issue: dict) -> dict:
     }
 
 
+def checklist_progress(source: Path, phase: str, errors: list[str]) -> tuple[int, int]:
+    folder = PHASE_FOLDERS.get(phase)
+    if not folder:
+        return 0, 0
+    checklist = source.parent / folder / "CHECKLIST.md"
+    if not checklist.exists():
+        errors.append(f"{source}: missing current-phase checklist '{checklist.name}' in '{folder}'")
+        return 0, 0
+    items = []
+    for line in checklist.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip().lower()
+        if stripped.startswith("- [") and len(stripped) >= 5 and stripped[4] == "]":
+            items.append(stripped[3] == "x")
+    return sum(items), len(items)
+
+
 def validate_record(record: dict, source: Path, errors: list[str]) -> None:
     for required in ("id", "name", "department", "owner", "phase", "status", "currentActivity", "lastUpdated"):
         if not record.get(required):
@@ -85,9 +113,8 @@ def validate_record(record: dict, source: Path, errors: list[str]) -> None:
         errors.append(f"{source}: healthOverride must be Green, Amber, Red, or null")
     if record.get("healthOverride") and not record.get("healthOverrideReason"):
         errors.append(f"{source}: healthOverrideReason is required when healthOverride is set")
-    readiness = record.get("gateReadiness")
-    if not isinstance(readiness, (int, float)) or not 0 <= readiness <= 100:
-        errors.append(f"{source}: gateReadiness must be a number from 0 to 100")
+    if record.get("reviewStatus") not in REVIEW_STATUSES:
+        errors.append(f"{source}: unsupported reviewStatus '{record.get('reviewStatus')}'")
     if record.get("closureReason") not in CLOSURE_REASONS:
         errors.append(f"{source}: unsupported closureReason '{record.get('closureReason')}'")
     if record.get("status") == "Closed" and not record.get("closureReason"):
@@ -112,7 +139,7 @@ def export() -> tuple[list[dict], list[str]]:
     published: list[dict] = []
     seen_ids: set[str] = set()
     today = date.today()
-    for source in sorted(USE_CASES.glob("*/use-case.json")):
+    for source in sorted(USE_CASES.glob("*/status.json")):
         if source.parent.name.startswith("_"):
             continue
         try:
@@ -127,6 +154,7 @@ def export() -> tuple[list[dict], list[str]]:
         seen_ids.add(record_id)
         if not record.get("publish"):
             continue
+        done, total = checklist_progress(source, record.get("phase"), errors)
         published.append({
             "id": record.get("id"),
             "name": record.get("name"),
@@ -135,7 +163,11 @@ def export() -> tuple[list[dict], list[str]]:
             "phase": record.get("phase"),
             "status": record.get("status"),
             "health": calculate_health(record, today),
-            "gateReadiness": record.get("gateReadiness"),
+            "reviewStatus": record.get("reviewStatus"),
+            "checklist": {"done": done, "total": total},
+            "checklistDone": done,
+            "checklistTotal": total,
+            "gateReadiness": round(done / total * 100) if total else 0,
             "currentActivity": record.get("currentActivity"),
             "blocker": record.get("blocker"),
             "nextDecision": record.get("nextDecision"),
@@ -173,4 +205,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

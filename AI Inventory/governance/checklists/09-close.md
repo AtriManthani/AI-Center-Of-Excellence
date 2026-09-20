@@ -1,4 +1,6 @@
-# Solution Closeout
+# Close
+
+Playbook phase: Solution Closeout
 
 ## Core evidence
 

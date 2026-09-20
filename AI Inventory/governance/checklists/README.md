@@ -1,4 +1,5 @@
 # Phase checklists
 
-These checklists translate the Governance Playbook into practical evidence and decision prompts. Copy the relevant checklist into the permanent use-case issue or its public, non-sensitive evidence folder and update it throughout the phase.
+These are the detailed master checklists from the Governance Playbook. Each use case also includes a shorter `CHECKLIST.md` inside every plainly named phase folder.
 
+Use the short checklist for routine updates. Refer to the master checklist when a more detailed governance review is needed.
