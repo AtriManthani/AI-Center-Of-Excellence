@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b2d3f">
+  <title>Prepare License Workbook | AI Center of Excellence</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root{--navy:#0b2d3f;--deep:#071f2c;--blue:#2e6f95;--gold:#f4b41a;--ink:#20313b;--muted:#61727b;--paper:#f4f7f8;--line:#d5dfe4;--shadow:0 14px 40px rgba(11,45,63,.12)}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Aptos,"Segoe UI",Arial,sans-serif;line-height:1.5}.masthead{background:linear-gradient(120deg,var(--deep),var(--navy) 62%,#154d67);color:#fff;padding:20px 26px;box-shadow:0 5px 22px rgba(0,0,0,.2)}.mast-inner{max-width:1050px;margin:auto;display:flex;align-items:center;gap:16px}.mark{width:52px;height:52px;border:2px solid var(--gold);border-radius:14px;display:grid;place-items:center;font-weight:900}.brand span{color:#b9d5e3;text-transform:uppercase;letter-spacing:.13em;font-size:11px;font-weight:900}.brand h1{margin:2px 0 0;font-size:30px}.nav{margin-left:auto;display:flex;gap:8px}.button{display:inline-block;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;text-decoration:none;border-radius:10px;padding:9px 13px;font-weight:800}.button.primary{border:0;background:var(--gold);color:#172934}.button:disabled{opacity:.45;cursor:not-allowed}main{max-width:900px;margin:38px auto 70px;padding:0 20px}.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:var(--shadow);margin-bottom:18px}h2{color:var(--navy);margin:0 0 8px}.lead{color:var(--muted);margin:0 0 22px}.steps{display:grid;gap:12px;margin:22px 0}.step{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}.number{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#e2edf2;color:var(--navy);font-weight:900}.step strong{display:block;color:var(--navy)}.step p{margin:2px 0;color:var(--muted);font-size:13px}.drop{border:2px dashed #9cb4c0;border-radius:16px;padding:28px;text-align:center;background:#f7fafb}.drop input{display:block;margin:14px auto}.action{border:0;border-radius:11px;padding:11px 17px;background:var(--blue);color:#fff;font-weight:900;font-size:15px}.status{margin-top:16px;border-radius:12px;padding:14px;background:#edf4f7;color:var(--navy);display:none}.status.show{display:block}.status.error{background:#f5e9ec;color:#6b3541}.privacy{border-left:5px solid var(--gold);background:#fff9e9;padding:15px 17px;border-radius:4px 13px 13px 4px}.privacy strong{color:var(--navy)}code{background:#edf2f4;padding:2px 5px;border-radius:5px}@media(max-width:700px){.mast-inner{align-items:flex-start}.nav{display:none}.panel{padding:20px}.brand h1{font-size:23px}}
+  </style>
+</head>
+<body>
+  <header class="masthead"><div class="mast-inner"><div class="mark">CLE</div><div class="brand"><span>AI Center of Excellence</span><h1>Prepare License Workbook</h1></div><div class="nav"><a class="button" href="./">Dashboard</a><a class="button" href="https://github.com/AtriManthani/AI-Center-Of-Excellence/tree/main/AI%20Licenses">Upload Folder</a></div></div></header>
+  <main>
+    <section class="panel">
+      <h2>Create the safe upload automatically</h2>
+      <p class="lead">Select the original Excel workbook from your computer. Processing happens only inside this browser; the original file is not uploaded or changed.</p>
+      <div class="privacy"><strong>What this does:</strong> replaces names with <code>AI-USER-###</code>, clears Email, and preserves Department, SubDepartment, Training, Training Date, License Type, License Provision Date, and Tool.</div>
+      <div class="drop">
+        <strong>Choose the original `.xlsx` workbook</strong>
+        <input id="workbookInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+        <button class="action" id="prepareButton" type="button" disabled>Prepare and Download Safe Workbook</button>
+        <div class="status" id="status" role="status"></div>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Upload in three steps</h2>
+      <div class="steps">
+        <div class="step"><div class="number">1</div><div><strong>Prepare</strong><p>Use the button above and save the generated file beginning with <code>AI_License_Register_Public_</code>.</p></div></div>
+        <div class="step"><div class="number">2</div><div><strong>Replace</strong><p>Delete the previous `.xlsx` file from the GitHub AI Licenses folder, then upload only the prepared file.</p></div></div>
+        <div class="step"><div class="number">3</div><div><strong>Verify</strong><p>Commit the upload, wait one or two minutes, then refresh the License Dashboard.</p></div></div>
+      </div>
+      <a class="button primary" href="https://github.com/AtriManthani/AI-Center-Of-Excellence/tree/main/AI%20Licenses">Open AI Licenses Folder</a>
+    </section>
+  </main>
+  <script>
+    "use strict";
+    const required=["User","Department","SubDepartment","Email","Training","Training Date","License Type","License Provision Date","Tool"];
+    const input=document.getElementById("workbookInput"),button=document.getElementById("prepareButton"),status=document.getElementById("status");
+    const normalize=value=>String(value??"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"");
+    function show(message,error=false){status.textContent=message;status.className=`status show${error?" error":""}`;}
+    function findSource(workbook){for(const name of workbook.SheetNames){const rows=XLSX.utils.sheet_to_json(workbook.Sheets[name],{header:1,defval:"",raw:true});for(let headerRow=0;headerRow<Math.min(rows.length,20);headerRow++){const headers=rows[headerRow].map(normalize);const indexes=required.map(header=>headers.indexOf(normalize(header)));if(indexes.every(index=>index>=0))return{name,rows,headerRow,indexes};}}throw new Error(`Required columns not found. Keep these headers: ${required.join(", ")}.`);}
+    input.addEventListener("change",()=>{button.disabled=!input.files.length;status.className="status";});
+    button.addEventListener("click",async()=>{try{button.disabled=true;show("Preparing a safe copy...");if(!window.XLSX)throw new Error("The spreadsheet reader could not load. Check the network connection and try again.");const file=input.files[0];if(!file)throw new Error("Choose an Excel workbook first.");const workbook=XLSX.read(await file.arrayBuffer(),{type:"array",cellDates:true});const source=findSource(workbook);const userIndex=source.indexes[0],emailIndex=source.indexes[3];const identities=new Map(),output=[required];let emailsRemoved=0,records=0;for(const row of source.rows.slice(source.headerRow+1)){const user=String(row[userIndex]??"").trim(),email=String(row[emailIndex]??"").trim();if(!user&&!email)continue;const values=source.indexes.map(index=>row[index]);const key=(email||user).toLowerCase();if(!identities.has(key))identities.set(key,`AI-USER-${String(identities.size+1).padStart(3,"0")}`);values[0]=identities.get(key);if(email)emailsRemoved++;values[3]="";output.push(values);records++;}if(!records)throw new Error("No license records were found below the header row.");const safeBook=XLSX.utils.book_new(),safeSheet=XLSX.utils.aoa_to_sheet(output);safeSheet["!cols"]=[{wch:18},{wch:22},{wch:28},{wch:14},{wch:18},{wch:18},{wch:18},{wch:23},{wch:30}];safeSheet["!autofilter"]={ref:`A1:I${output.length}`};XLSX.utils.book_append_sheet(safeBook,safeSheet,"MasterFile");const date=new Date().toISOString().slice(0,10);XLSX.writeFile(safeBook,`AI_License_Register_Public_${date}.xlsx`);show(`Safe workbook downloaded: ${records} rows, ${identities.size} anonymous users, ${emailsRemoved} email values removed.`);}catch(error){console.error(error);show(error.message||"The workbook could not be prepared.",true);}finally{button.disabled=!input.files.length;}});
+  </script>
+</body>
+</html>

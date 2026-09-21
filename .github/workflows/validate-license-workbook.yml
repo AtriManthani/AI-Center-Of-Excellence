@@ -1,0 +1,89 @@
+name: Validate AI License Workbook
+
+on:
+  push:
+    paths:
+      - "AI Licenses/*.xlsx"
+      - ".github/workflows/validate-license-workbook.yml"
+  pull_request:
+    paths:
+      - "AI Licenses/*.xlsx"
+      - ".github/workflows/validate-license-workbook.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install workbook reader
+        run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+
+      - name: Validate public-safe workbooks
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          from openpyxl import load_workbook
+
+          required = [
+              "User", "Department", "SubDepartment", "Email", "Training",
+              "Training Date", "License Type", "License Provision Date", "Tool",
+          ]
+          normalize = lambda value: re.sub(r"[^a-z0-9]+", "", str(value or "").lower())
+          expected = [normalize(value) for value in required]
+          files = [path for path in Path("AI Licenses").glob("*.xlsx") if not path.name.startswith("~$")]
+          if not files:
+              raise SystemExit("No Excel workbook was found in AI Licenses.")
+
+          failures = []
+          for path in files:
+              workbook = load_workbook(path, read_only=True, data_only=True)
+              source = None
+              for sheet in workbook.worksheets:
+                  for row_number, row in enumerate(sheet.iter_rows(min_row=1, max_row=20, values_only=True), 1):
+                      headers = [normalize(value) for value in row]
+                      if all(header in headers for header in expected):
+                          source = (sheet, row_number, {header: headers.index(header) for header in expected})
+                          break
+                  if source:
+                      break
+              if not source:
+                  failures.append(f"{path.name}: required nine-column structure was not found")
+                  continue
+
+              sheet, header_row, indexes = source
+              unsafe_email_rows = 0
+              unsafe_user_rows = 0
+              record_count = 0
+              for row in sheet.iter_rows(min_row=header_row + 1, values_only=True):
+                  user = str(row[indexes[normalize('User')]] or "").strip()
+                  email = str(row[indexes[normalize('Email')]] or "").strip()
+                  tool = str(row[indexes[normalize('Tool')]] or "").strip()
+                  if not user and not tool:
+                      continue
+                  record_count += 1
+                  unsafe_email_rows += bool(email)
+                  unsafe_user_rows += not bool(re.fullmatch(r"AI-USER-\d+", user))
+              if not record_count:
+                  failures.append(f"{path.name}: no license records were found")
+              if unsafe_email_rows:
+                  failures.append(f"{path.name}: {unsafe_email_rows} rows contain email values")
+              if unsafe_user_rows:
+                  failures.append(f"{path.name}: {unsafe_user_rows} rows lack anonymous AI-USER references")
+
+          if failures:
+              for failure in failures:
+                  print(f"::error::{failure}")
+              raise SystemExit("License workbook validation failed. Use Prepare License Workbook before uploading.")
+          print(f"Validated {len(files)} public-safe license workbook(s).")
