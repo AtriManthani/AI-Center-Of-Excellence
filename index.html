@@ -94,16 +94,20 @@
 
     <section class="view-panel" id="delivery" aria-label="Program Delivery">
       <div class="slide">
-        <div class="delivery-heading"><div class="delivery-number">1</div><div><h2>Where we stand</h2><p>A concise view of overall delivery and workstream progress.</p></div></div>
+        <div class="delivery-heading"><div class="delivery-number">1</div><div><h2>What we completed last week</h2><p id="completedWeekRange">Completed items from the previous reporting week.</p></div></div>
+        <article class="panel"><div class="panel-head"><div><div class="section-kicker">Last week's delivery</div><h3>Completed commitments</h3></div><span class="section-count" id="completedWorkCount"></span></div><div class="focus-grid" id="completedLastWeek"></div></article>
+      </div>
+      <div class="slide">
+        <div class="delivery-heading"><div class="delivery-number">2</div><div><h2>Where we stand</h2><p>A concise view of overall delivery and workstream progress.</p></div></div>
         <div class="kpi-grid" id="deliveryKpis"></div>
         <article class="panel" style="margin-top:18px"><div class="panel-head"><div><div class="section-kicker">Workstreams</div><h3>Progress at a glance</h3></div></div><div class="delivery-workstreams" id="deliveryTrackProgress"></div></article>
       </div>
       <div class="slide">
-        <div class="delivery-heading"><div class="delivery-number">2</div><div><h2>What we are currently working on</h2><p>Priority items marked In Progress in the current Excel plan.</p></div></div>
+        <div class="delivery-heading"><div class="delivery-number">3</div><div><h2>What we are currently working on</h2><p>Priority items marked In Progress in the current Excel plan.</p></div></div>
         <article class="panel"><div class="panel-head"><div><div class="section-kicker">Current focus</div><h3>Active delivery items</h3></div><span class="section-count" id="currentWorkCount"></span></div><div class="focus-grid" id="currentWork"></div></article>
       </div>
       <div class="slide">
-        <div class="delivery-heading"><div class="delivery-number">3</div><div><h2>What's coming up</h2><p>The next milestones and planned work based on workbook dates.</p></div></div>
+        <div class="delivery-heading"><div class="delivery-number">4</div><div><h2>What's coming up</h2><p>The next milestones and planned work based on workbook dates.</p></div></div>
         <div class="coming-grid">
           <article class="panel"><div class="panel-head"><div><div class="section-kicker">Milestones</div><h3>Upcoming commitments</h3></div></div><div class="list" id="deliveryMilestones"></div></article>
           <article class="panel"><div class="panel-head"><div><div class="section-kicker">Next work</div><h3>Planned delivery items</h3></div></div><div class="list" id="nextPlannedWork"></div></article>
@@ -167,6 +171,7 @@
     }
     function compareVersions(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){const difference=(a[i]||0)-(b[i]||0);if(difference)return difference;}return 0;}
     function compareWorkbookNames(a,b){const ra=workbookRank(a.name),rb=workbookRank(b.name);return rb.date-ra.date||compareVersions(rb.version,ra.version)||b.name.localeCompare(a.name,undefined,{numeric:true,sensitivity:"base"});}
+    function dateFromWorkbookName(name){const match=String(name||"").match(/((?:19|20)\d{2})(\d{2})(\d{2})/);return match?new Date(Number(match[1]),Number(match[2])-1,Number(match[3])):null;}
     async function latestCommitDate(file){
       try{const endpoint=`https://api.github.com/repos/${REPOSITORY}/commits?path=${encodeURIComponent(file.path)}&per_page=1`;const response=await fetch(endpoint,{cache:"no-store"});if(!response.ok)return 0;const commits=await response.json();return Date.parse(commits[0]?.commit?.committer?.date||commits[0]?.commit?.author?.date||"")||0;}catch{return 0;}
     }
@@ -194,7 +199,7 @@
     }
     function modelFrom(wb){
       const project=objects(wb,"Project Plan").filter(r=>r.Phase&&r["Task / Deliverable"]);
-      const asOf=asDate(cell(wb,"Reporting Inputs","B6"))||new Date(); const year=asOf.getFullYear();
+      const asOf=asDate(cell(wb,"Reporting Inputs","B6"))||dateFromWorkbookName(state.source.name)||new Date(); const year=asOf.getFullYear();
       const milestones=objects(wb,"Key Dates & Milestones").filter(r=>asDate(r.Date)&&r.Milestone);
       const communications=objects(wb,"HR Chatbot Comms Calendar").filter(r=>r["#"]&&r.Communication).map(r=>({...r,_date:commDate(r.Date,year)}));
       const success=objects(wb,"Success Metrics").filter(r=>r.Metric&&r.Source);
@@ -223,6 +228,7 @@
     function renderList(id,items,mapper,empty="Nothing to display."){const el=$(id);el.innerHTML=items.length?items.map(mapper).join(""):`<div class="empty">${esc(empty)}</div>`;}
     function phaseHtml(g){const complete=g.items.filter(r=>String(r.Status).toLowerCase()==="complete").length;return `<div class="phase"><div class="phase-top"><div class="phase-name">${esc(g.name)}</div><div class="phase-pct">${pct(g.completion)}</div></div><div class="phase-meta">${complete} complete · ${g.items.length} total</div><div class="bar"><i style="width:${pct(clamp(g.completion))}"></i></div></div>`;}
     function listTask(t){return `<div class="list-item"><div class="date">${fmtDate(t["Due Date"])}</div><div><div class="item-title">${esc(t["Task / Deliverable"])}</div><div class="item-detail">${esc(t.Owner||"")}</div></div>${tag(t.Status)}</div>`;}
+    function completedTaskHtml(t){return `<article class="focus-card"><h3>${esc(t["Task / Deliverable"])}</h3><div class="focus-meta"><span>${esc(trackOf(t.Phase))}</span><span class="tag">Complete</span></div><div class="focus-owner">${esc(t.Owner||"Owner not specified")}</div></article>`;}
     function focusTaskHtml(t){return `<article class="focus-card"><h3>${esc(t["Task / Deliverable"])}</h3><div class="focus-meta"><span>${esc(trackOf(t.Phase))}</span><span class="tag">In Progress</span></div><div class="focus-owner">${esc(t.Owner||"Owner not specified")} · ${pct(t["% Complete"])}</div></article>`;}
     function plannedTaskHtml(t){return `<div class="list-item"><div class="date">${fmtDate(t["Due Date"])}</div><div><div class="item-title">${esc(t["Task / Deliverable"])}</div><div class="item-detail">${esc(trackOf(t.Phase))} · ${esc(t.Owner||"Owner not specified")}</div></div><span class="tag">Planned</span></div>`;}
     function render(){
@@ -238,6 +244,11 @@
       const statuses=[["Complete",m.complete,"complete"],["In progress",m.inProgress,"progress"],["Not started",m.notStarted,"notstarted"],["Deferred",m.deferred,"deferred"],["Blocked",m.blocked,"deferred"]];
       $("statusBars").innerHTML=statuses.map(([label,count,cls])=>`<div class="status-row"><span>${esc(label)}</span><div class="bar"><i class="${cls}" style="width:${pct(count/Math.max(1,m.project.length))}"></i></div><strong>${count}</strong></div>`).join("");
       $("trackProgress").innerHTML=Object.values(m.tracks).map(phaseHtml).join("");
+      const completedWindowStart=new Date(m.asOf);completedWindowStart.setDate(completedWindowStart.getDate()-7);const completedWindowEnd=new Date(m.asOf);completedWindowEnd.setDate(completedWindowEnd.getDate()-1);
+      const completedLastWeek=m.project.filter(r=>String(r.Status).toLowerCase()==="complete"&&asDate(r["Due Date"])>=completedWindowStart&&asDate(r["Due Date"])<m.asOf).sort((a,b)=>asDate(b["Due Date"])-asDate(a["Due Date"])||String(a["Task / Deliverable"]).localeCompare(String(b["Task / Deliverable"])));
+      $("completedWeekRange").textContent=`Completed plan items dated ${fmtDate(completedWindowStart)} through ${fmtDate(completedWindowEnd)}.`;
+      $("completedWorkCount").textContent=`${completedLastWeek.length} completed item${completedLastWeek.length===1?"":"s"}`;
+      $("completedLastWeek").innerHTML=completedLastWeek.length?completedLastWeek.map(completedTaskHtml).join(""):`<div class="empty">No plan items dated last week are marked Complete.</div>`;
       $("deliveryKpis").innerHTML=[kpi("Plan items",m.project.length,"Across all workstreams"),kpi("Complete",m.complete,pct(m.complete/Math.max(1,m.project.length))),kpi("In progress",m.inProgress,"Current active work"),kpi("Planned next",m.notStarted,"Not started"),kpi("Average completion",pct(m.completion),"Across the full plan")].join("");
       $("deliveryTrackProgress").innerHTML=Object.values(m.tracks).map(phaseHtml).join("");
       const dueValue=t=>asDate(t["Due Date"])?.valueOf()??Number.MAX_SAFE_INTEGER;
