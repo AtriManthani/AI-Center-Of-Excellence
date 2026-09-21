@@ -25,7 +25,7 @@ The dashboard is designed for the current Microsoft Training workbook structure.
 | `Training` | Training-status totals and employee-level status. |
 | `Training Date` | Training schedule and assignment detail. |
 | `License Type` | License-category totals and employee-level allocation. |
-| `License Provision Date` | Provisioning date shown in assignment detail. |
+| `License Provision Date` | Determines whether a license is issued. A populated date counts as issued; a blank date counts as not yet issued. |
 | `Tool` | Tool-allocation totals. Each populated row counts as one issued license. |
 
 Example:
@@ -42,3 +42,7 @@ This repository is public. Do not upload the supplied workbook unchanged because
 Never upload the original Microsoft Training workbook directly. Use **Prepare License Workbook** first. It runs locally in the browser, replaces each `User` value with a public-safe reference, clears every `Email` value, preserves the reporting fields, and downloads a separate safe copy. The original file is not changed or uploaded by the preparation page.
 
 The dashboard continues to block any workbook containing email addresses or name-like values as a final safeguard.
+
+## Issuance rule
+
+The dashboard does not count every workbook row as an issued license. A license is counted as **issued only when `License Provision Date` is populated**. Records with a blank provisioning date remain visible in the total and assignment detail but are reported as **not yet issued**.
