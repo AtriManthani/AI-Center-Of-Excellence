@@ -1,0 +1,74 @@
+name: Validate ITS Project Workbook
+
+on:
+  push:
+    paths:
+      - "ITS Project Tracking/*.xlsx"
+      - ".github/workflows/validate-its-project-workbook.yml"
+  pull_request:
+    paths:
+      - "ITS Project Tracking/*.xlsx"
+      - ".github/workflows/validate-its-project-workbook.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install workbook reader
+        run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
+      - name: Validate public-safe workbook
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          from openpyxl import load_workbook
+
+          required = {
+              "project_id", "project_name", "description", "status", "report_section",
+              "percent_complete", "target_date", "target_quarter", "run_grow_transform",
+              "strategic_goal", "project_type", "milestones_completed",
+          }
+          forbidden = {
+              "business_owner", "its_staff_lead", "status_original", "risk_level",
+              "risk_category", "risk_description", "tagging_notes", "needs_review",
+          }
+          files = [path for path in Path("ITS Project Tracking").glob("*.xlsx") if not path.name.startswith("~$")]
+          if not files:
+              raise SystemExit("No ITS project workbook was found.")
+          failures = []
+          for path in files:
+              workbook = load_workbook(path, read_only=True, data_only=True)
+              sheet = workbook["Projects"] if "Projects" in workbook.sheetnames else workbook.active
+              headers = {str(cell.value or "").strip().lower() for cell in next(sheet.iter_rows())}
+              missing = sorted(required - headers)
+              exposed = sorted(forbidden & headers)
+              email_cells = 0
+              records = 0
+              for row in sheet.iter_rows(min_row=2, values_only=True):
+                  if not any(value not in (None, "") for value in row):
+                      continue
+                  records += 1
+                  email_cells += sum(bool(re.search(r"[^\s@]+@[^\s@]+\.[^\s@]+", str(value or ""))) for value in row)
+              if missing:
+                  failures.append(f"{path.name}: missing required fields")
+              if exposed:
+                  failures.append(f"{path.name}: contains internal-only fields")
+              if email_cells:
+                  failures.append(f"{path.name}: contains {email_cells} email-like values")
+              if not records:
+                  failures.append(f"{path.name}: contains no project records")
+          if failures:
+              for failure in failures:
+                  print(f"::error::{failure}")
+              raise SystemExit("ITS project workbook validation failed. Use Prepare Project Workbook before uploading.")
+          print(f"Validated {len(files)} public-safe ITS project workbook(s).")
