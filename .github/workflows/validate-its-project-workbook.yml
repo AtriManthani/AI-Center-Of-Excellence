@@ -36,11 +36,12 @@ jobs:
           required = {
               "project_id", "project_name", "description", "status", "report_section",
               "percent_complete", "target_date", "target_quarter", "run_grow_transform",
-              "strategic_goal", "project_type", "milestones_completed",
+              "strategic_goal", "project_type", "risk_level", "risk_category",
+              "milestones_completed",
           }
           forbidden = {
-              "business_owner", "its_staff_lead", "status_original", "risk_level",
-              "risk_category", "risk_description", "tagging_notes", "needs_review",
+              "business_owner", "its_staff_lead", "status_original", "risk_description",
+              "tagging_notes", "needs_review",
           }
           files = [path for path in Path("ITS Project Tracking").glob("*.xlsx") if not path.name.startswith("~$")]
           if not files:

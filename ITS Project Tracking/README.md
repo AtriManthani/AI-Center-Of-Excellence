@@ -13,6 +13,8 @@ The dashboard presents information in this order:
 3. What's coming up
 4. Portfolio at a glance
 
+The leadership overview includes High, Medium, and Low project-risk counts. Project cards and the All Projects view show the structured risk level and risk category from the workbook.
+
 ## Update the dashboard
 
 1. Open [Prepare Project Workbook](https://atrimanthani.github.io/AI-Center-Of-Excellence/ITS%20Project%20Tracking/prepare.html).
@@ -25,4 +27,4 @@ The workbook filename may change. The dashboard automatically selects the most r
 
 ## Public-data requirement
 
-The repository is public. Never upload the original workbook directly. The preparation page excludes named owners, named ITS leads, detailed risk narratives, internal tagging notes, and review comments while retaining the project delivery fields used by the dashboard.
+The repository is public. Never upload the original workbook directly. The preparation page excludes named owners, named ITS leads, detailed risk narratives, internal tagging notes, and review comments. It retains structured risk level and risk category with the project delivery fields used by the dashboard.
