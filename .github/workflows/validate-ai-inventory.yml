@@ -6,11 +6,13 @@ on:
     branches: [main]
     paths:
       - "AI Inventory/use-cases/**"
+      - "AI Inventory/governance/controls.json"
       - "AI Inventory/scripts/export_inventory.py"
       - ".github/workflows/validate-ai-inventory.yml"
   pull_request:
     paths:
       - "AI Inventory/use-cases/**"
+      - "AI Inventory/governance/controls.json"
       - "AI Inventory/scripts/export_inventory.py"
 
 permissions:
@@ -28,6 +30,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: validated-ai-inventory
-          path: "AI Inventory/dist/use-cases.json"
+          path: "AI Inventory/data/use-cases.json"
           if-no-files-found: error
 

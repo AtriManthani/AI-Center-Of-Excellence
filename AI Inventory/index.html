@@ -30,6 +30,8 @@
     <nav class="tabs" aria-label="Inventory views">
       <button class="active" data-view="overview" type="button">Leadership Overview</button>
       <button data-view="pipeline" type="button">Governance Pipeline</button>
+      <button data-view="reviews" type="button">Review Queue</button>
+      <button data-view="risks" type="button">Technical Risks</button>
       <button data-view="production" type="button">Production</button>
       <button data-view="issues" type="button">Issues</button>
       <button data-view="closed" type="button">Closed</button>
@@ -74,6 +76,25 @@
       <div class="pipeline" id="pipelineBoard"></div>
     </section>
 
+    <section class="view" id="reviews" aria-labelledby="reviews-title">
+      <div class="slide">
+        <div class="section-heading"><div><span class="eyebrow">Formal assurance</span><h2 id="reviews-title">Review queue</h2><p>Required Cyber, Data, Application, Network, and Enterprise decisions that are not yet complete.</p></div></div>
+        <div class="kpi-grid five" id="reviewKpis"></div>
+      </div>
+      <div class="slide panel">
+        <div class="panel-heading"><div><span class="eyebrow">Action required</span><h2>Pending formal reviews</h2></div></div>
+        <div id="reviewQueue"></div>
+      </div>
+    </section>
+
+    <section class="view" id="risks" aria-labelledby="risks-title">
+      <div class="slide">
+        <div class="section-heading"><div><span class="eyebrow">Technical assurance</span><h2 id="risks-title">Technical and AI risk register</h2><p>Inherent and residual risks, mitigation ownership, target dates, and decision status.</p></div></div>
+        <div class="kpi-grid" id="riskKpis"></div>
+      </div>
+      <div class="slide risk-grid" id="technicalRiskList"></div>
+    </section>
+
     <section class="view" id="production" aria-labelledby="production-title">
       <div class="section-heading"><div><span class="eyebrow">Operational inventory</span><h2 id="production-title">Live AI use cases</h2><p>Deployed solutions and their latest monitoring position.</p></div></div>
       <div class="card-grid" id="productionGrid"></div>
@@ -92,6 +113,13 @@
       <div class="card-grid" id="closedGrid"></div>
     </section>
   </main>
+
+  <dialog class="case-dialog" id="caseDetailDialog" aria-labelledby="caseDetailTitle">
+    <div class="dialog-shell">
+      <div class="dialog-header"><div><span class="eyebrow">Governance passport</span><h2 id="caseDetailTitle">Use-case governance</h2></div><button class="dialog-close" id="caseDetailClose" type="button" aria-label="Close detailed governance view">Close</button></div>
+      <div class="dialog-body" id="caseDetailBody"></div>
+    </div>
+  </dialog>
 
   <div class="present-controls" aria-label="Presentation controls">
     <button id="previousSlide" type="button" aria-label="Previous slide">←</button>

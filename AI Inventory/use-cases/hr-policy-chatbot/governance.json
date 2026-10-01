@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "phaseProgress": [
+    {"phase": "Intake", "status": "Not Started", "startedDate": null, "targetDate": null, "completedDate": null, "gate": {"status": "Not Started", "decision": "", "decisionDate": null, "decisionByGroup": "", "conditions": "Historical evidence has not yet been entered in the detailed inventory.", "exceptionExpirationDate": null}, "requirements": {}},
+    {"phase": "Qualify", "status": "Not Started", "startedDate": null, "targetDate": null, "completedDate": null, "gate": {"status": "Not Started", "decision": "", "decisionDate": null, "decisionByGroup": "", "conditions": "", "exceptionExpirationDate": null}, "requirements": {}},
+    {"phase": "Prioritize", "status": "Not Started", "startedDate": null, "targetDate": null, "completedDate": null, "gate": {"status": "Not Started", "decision": "", "decisionDate": null, "decisionByGroup": "", "conditions": "", "exceptionExpirationDate": null}, "requirements": {}},
+    {"phase": "Design", "status": "Not Started", "startedDate": null, "targetDate": null, "completedDate": null, "gate": {"status": "Not Started", "decision": "", "decisionDate": null, "decisionByGroup": "", "conditions": "", "exceptionExpirationDate": null}, "requirements": {}},
+    {"phase": "Develop", "status": "Not Started", "startedDate": null, "targetDate": null, "completedDate": null, "gate": {"status": "Not Started", "decision": "", "decisionDate": null, "decisionByGroup": "", "conditions": "", "exceptionExpirationDate": null}, "requirements": {}},
+    {"phase": "Test", "status": "In Progress", "startedDate": null, "targetDate": null, "completedDate": null, "gate": {"status": "Not Started", "decision": "", "decisionDate": null, "decisionByGroup": "", "conditions": "Testing evidence and reviewer outcomes must be entered before a deployment recommendation is recorded.", "exceptionExpirationDate": null}, "requirements": {}},
+    {"phase": "Deploy", "status": "Not Started", "startedDate": null, "targetDate": null, "completedDate": null, "gate": {"status": "Not Started", "decision": "", "decisionDate": null, "decisionByGroup": "", "conditions": "", "exceptionExpirationDate": null}, "requirements": {}},
+    {"phase": "Monitor", "status": "Not Started", "startedDate": null, "targetDate": null, "completedDate": null, "gate": {"status": "Not Started", "decision": "", "decisionDate": null, "decisionByGroup": "", "conditions": "", "exceptionExpirationDate": null}, "requirements": {}},
+    {"phase": "Close", "status": "Not Started", "startedDate": null, "targetDate": null, "completedDate": null, "gate": {"status": "Not Started", "decision": "", "decisionDate": null, "decisionByGroup": "", "conditions": "", "exceptionExpirationDate": null}, "requirements": {}}
+  ],
+  "formalReviews": [
+    {"group": "Cyber", "phase": "Design", "applicability": "Required", "status": "Not Started", "submittedDate": null, "decisionDate": null, "conditions": "", "evidence": [], "revalidationRequired": false},
+    {"group": "Data", "phase": "Design", "applicability": "Required", "status": "Not Started", "submittedDate": null, "decisionDate": null, "conditions": "", "evidence": [], "revalidationRequired": false},
+    {"group": "Application", "phase": "Design", "applicability": "Required", "status": "Not Started", "submittedDate": null, "decisionDate": null, "conditions": "", "evidence": [], "revalidationRequired": false},
+    {"group": "Network", "phase": "Design", "applicability": "Required", "status": "Not Started", "submittedDate": null, "decisionDate": null, "conditions": "", "evidence": [], "revalidationRequired": false},
+    {"group": "Enterprise", "phase": "Design", "applicability": "Required", "status": "Not Started", "submittedDate": null, "decisionDate": null, "conditions": "", "evidence": [], "revalidationRequired": false}
+  ],
+  "technicalRisks": [
+    {
+      "id": "TR-001",
+      "title": "Policy-answer accuracy and grounding",
+      "category": "AI Reliability",
+      "scenario": "Pending assessment: the assistant could provide an inaccurate, incomplete, or outdated interpretation of an approved policy.",
+      "ownerGroup": "Application",
+      "status": "Open",
+      "inherentRisk": "Not Assessed",
+      "controls": ["DES-08", "DES-09", "DES-10", "DES-13", "TST-01", "TST-05", "TST-09"],
+      "mitigation": "Assessment plan: confirm approved grounding sources, version control, citations, response limitations, escalation to authoritative policy owners, acceptance thresholds, and representative testing.",
+      "targetDate": null,
+      "residualRisk": "Not Assessed",
+      "decision": "Assessment required before a deployment recommendation.",
+      "decisionDate": null,
+      "exceptionExpirationDate": null,
+      "evidence": []
+    },
+    {
+      "id": "TR-002",
+      "title": "Unauthorized policy-content retrieval or disclosure",
+      "category": "Data Protection",
+      "scenario": "Pending assessment: retrieval or access configuration could expose content beyond the intended user's authorization or the chatbot's approved scope.",
+      "ownerGroup": "Data",
+      "status": "Open",
+      "inherentRisk": "Not Assessed",
+      "controls": ["DES-03", "DES-04", "DES-05", "DES-09", "DES-10", "TST-03", "TST-04"],
+      "mitigation": "Assessment plan: document source classification and ownership, enforce least privilege and retrieval authorization, minimize stored data, and test access boundaries and leakage scenarios.",
+      "targetDate": null,
+      "residualRisk": "Not Assessed",
+      "decision": "Assessment required before a deployment recommendation.",
+      "decisionDate": null,
+      "exceptionExpirationDate": null,
+      "evidence": []
+    },
+    {
+      "id": "TR-003",
+      "title": "Prompt injection and manipulation",
+      "category": "Cybersecurity",
+      "scenario": "Pending assessment: malicious or unintended instructions could cause the assistant to ignore approved behavior, reveal protected context, or produce unsafe output.",
+      "ownerGroup": "Cyber",
+      "status": "Open",
+      "inherentRisk": "Not Assessed",
+      "controls": ["DES-08", "DES-09", "DES-10", "DES-11", "TST-03", "TST-05"],
+      "mitigation": "Assessment plan: define input and output safeguards, instruction hierarchy, content boundaries, abuse-case testing, safe refusal behavior, logging, alerting, and response procedures.",
+      "targetDate": null,
+      "residualRisk": "Not Assessed",
+      "decision": "Assessment required before a deployment recommendation.",
+      "decisionDate": null,
+      "exceptionExpirationDate": null,
+      "evidence": []
+    },
+    {
+      "id": "TR-004",
+      "title": "Integration, network, and service availability",
+      "category": "Resilience",
+      "scenario": "Pending assessment: dependency, integration, connectivity, capacity, or service failure could make the assistant unavailable or produce incomplete responses.",
+      "ownerGroup": "Network",
+      "status": "Open",
+      "inherentRisk": "Not Assessed",
+      "controls": ["DES-06", "DES-07", "DES-11", "DES-12", "TST-02", "DEP-03", "DEP-04", "DEP-05"],
+      "mitigation": "Assessment plan: document dependencies and connectivity, define timeouts and failure behavior, establish capacity and availability targets, test recovery, and confirm monitoring and escalation.",
+      "targetDate": null,
+      "residualRisk": "Not Assessed",
+      "decision": "Assessment required before a deployment recommendation.",
+      "decisionDate": null,
+      "exceptionExpirationDate": null,
+      "evidence": []
+    },
+    {
+      "id": "TR-005",
+      "title": "Uncontrolled model, platform, or vendor change",
+      "category": "Technology Lifecycle",
+      "scenario": "Pending assessment: a model, platform, dependency, API, or vendor change could alter behavior, controls, cost, or supportability without appropriate review and retesting.",
+      "ownerGroup": "Enterprise",
+      "status": "Open",
+      "inherentRisk": "Not Assessed",
+      "controls": ["DES-07", "DES-09", "DES-11", "DES-13", "MON-06", "MON-08"],
+      "mitigation": "Assessment plan: establish version inventory, change notification, impact review, regression testing, approval, rollback, and periodic reassessment requirements.",
+      "targetDate": null,
+      "residualRisk": "Not Assessed",
+      "decision": "Assessment required before a deployment recommendation.",
+      "decisionDate": null,
+      "exceptionExpirationDate": null,
+      "evidence": []
+    }
+  ],
+  "decisions": [
+    {"id": "DEC-001", "phase": "Test", "type": "Governance Administration", "decision": "Use the HR Policy Chatbot as the pilot for detailed AI Inventory tracking.", "outcome": "Recorded", "decisionDate": "2026-10-01", "decisionByGroup": "Enterprise", "conditions": "Do not infer or publish unverified approvals; enter public-safe evidence as it is confirmed."}
+  ],
+  "monitoring": {
+    "cadence": "Not established",
+    "lastReviewDate": null,
+    "nextReviewDate": null,
+    "overallResult": "Not Started",
+    "metrics": []
+  }
+}
