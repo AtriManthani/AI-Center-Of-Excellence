@@ -101,7 +101,6 @@ async function fallbackInventory(){
 function card(item){
   const blocker = item.blocker ? `<div class="detail"><strong>Blocker:</strong> ${escapeHtml(item.blocker)}</div>` : "";
   const closure = item.status === "Closed" ? `<div class="detail"><strong>Closure reason:</strong> ${escapeHtml(item.closureReason || "Not recorded")}</div>` : "";
-  const checklist=item.checklistTotal?`${item.checklistDone} of ${item.checklistTotal} checks`:`${item.gateReadiness}% complete`;
   const current=(item.phaseSteps||[]).find(step=>step.status==="Current");
   const actions=`<div class="card-actions"><button class="status-button" data-case-id="${escapeHtml(item.id)}" type="button">View Status</button></div>`;
   return `<article class="use-case-card">
@@ -110,19 +109,16 @@ function card(item){
     <div class="stage-name"><span>Current stage</span><strong>${escapeHtml(item.stage)}</strong></div>
     <div class="card-latest"><strong>This week's update</strong>${escapeHtml(item.currentActivity || "No update recorded")}${blocker}${closure}</div>
     <div class="current-step"><span>Now</span>${escapeHtml(current?.name||"Current step not recorded")}</div>
-    <div class="card-footer"><span>${escapeHtml(item.owner || "Owner not set")}</span><span class="readiness">${escapeHtml(checklist)}</span></div>${actions}
+    <div class="card-footer"><span>${escapeHtml(item.owner || "Owner not set")}</span></div>${actions}
   </article>`;
 }
 
 function showStatus(id){
   const item=state.data.useCases.find(record=>record.id===id);
   if(!item)return;
-  const completed=(item.phaseSteps||[]).filter(step=>step.status==="Complete").length;
-  const total=(item.phaseSteps||[]).length;
   byId("statusDetailTitle").textContent=`${item.id} · ${item.name}`;
   byId("statusDetailBody").innerHTML=`
     <div class="status-hero"><div><span class="eyebrow">${escapeHtml(item.phase)} phase</span><h3>${escapeHtml(item.stage)}</h3><p>${escapeHtml(item.summary||"")}</p></div><span class="stage-status">${escapeHtml(item.stageStatus)}</span></div>
-    <div class="status-progress"><div><strong>${completed} of ${total}</strong><span>phase steps complete</span></div><div class="progress-bar"><i style="width:${total?Math.round(completed/total*100):0}%"></i></div></div>
     <div class="step-list">${(item.phaseSteps||[]).map((step,index)=>`<div class="phase-step ${normal(step.status).replace(/\s+/g,"-")}"><div class="step-marker">${step.status==="Complete"?"✓":index+1}</div><div><span>${escapeHtml(step.status)}</span><strong>${escapeHtml(step.name)}</strong>${step.update?`<p>${escapeHtml(step.update)}</p>`:""}</div></div>`).join("")}</div>
     <div class="status-summary"><article><span>This week's update</span><p>${escapeHtml(item.currentActivity||"No update recorded")}</p></article><article><span>Next decision</span><p>${escapeHtml(item.nextDecision||"Not recorded")} ${item.nextDecisionDate?`· ${formatDate(item.nextDecisionDate)}`:""}</p></article>${item.blocker?`<article class="wide"><span>Blocker</span><p>${escapeHtml(item.blocker)}</p></article>`:""}</div>
     ${item.folderUrl?`<div class="status-links"><a href="${item.phaseFolderUrl}/CHECKLIST.md" target="_blank" rel="noopener">Open ${escapeHtml(item.phase)} checklist</a><a href="${item.folderUrl}" target="_blank" rel="noopener">Open use-case files</a></div>`:""}`;
