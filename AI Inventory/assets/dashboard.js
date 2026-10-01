@@ -102,7 +102,11 @@ function card(item){
   const blocker = item.blocker ? `<div class="detail"><strong>Blocker:</strong> ${escapeHtml(item.blocker)}</div>` : "";
   const closure = item.status === "Closed" ? `<div class="detail"><strong>Closure reason:</strong> ${escapeHtml(item.closureReason || "Not recorded")}</div>` : "";
   const current=(item.phaseSteps||[]).find(step=>step.status==="Current");
-  const actions=`<div class="card-actions"><button class="status-button" data-case-id="${escapeHtml(item.id)}" type="button">View Status</button></div>`;
+  const testingDropdown=item.phase==="Test"?`<details class="status-dropdown" data-case-id="${escapeHtml(item.id)}">
+    <summary><span>Phase 1 testing details</span><span class="dropdown-control"><span class="open-label">Open</span><span class="close-label">Close</span><span class="dropdown-arrow" aria-hidden="true">⌄</span></span></summary>
+    <div class="dropdown-content"><div class="step-list">${(item.phaseSteps||[]).map((step,index)=>`<div class="phase-step ${normal(step.status).replace(/\s+/g,"-")}"><div class="step-marker">${step.status==="Complete"?"✓":index+1}</div><div><span>${escapeHtml(step.status)}</span><strong>${escapeHtml(step.name)}</strong>${step.update?`<p>${escapeHtml(step.update)}</p>`:""}</div></div>`).join("")}</div></div>
+  </details>`:"";
+  const actions=item.phase==="Test"?testingDropdown:`<div class="card-actions"><button class="status-button" data-case-id="${escapeHtml(item.id)}" type="button">View Status</button></div>`;
   return `<article class="use-case-card">
     <div class="card-top"><div><div class="use-case-id">${escapeHtml(item.id)}</div><h3>${escapeHtml(item.name)}</h3></div><span class="badge">${escapeHtml(item.phase)}</span></div>
     <div class="card-meta">${escapeHtml(item.department || "Department not set")} · ${escapeHtml(item.status)} · ${escapeHtml(item.stageStatus)}</div>
@@ -127,6 +131,14 @@ function showStatus(id){
 }
 
 function closeStatus(){const dialog=byId("statusDetailDialog");if(typeof dialog.close==="function")dialog.close();else dialog.removeAttribute("open");}
+
+function openCaseStatus(id){
+  const item=state.data.useCases.find(record=>record.id===id);
+  if(item?.phase!=="Test"){showStatus(id);return;}
+  selectView("pipeline");
+  const dropdown=document.querySelector(`.status-dropdown[data-case-id="${CSS.escape(id)}"]`);
+  if(dropdown){dropdown.open=true;dropdown.scrollIntoView({behavior:"smooth",block:"center"});}
+}
 
 function issue(item, parent){
   const mitigation = item.mitigationSummary ? `<div class="mitigation"><strong>Mitigation:</strong> ${escapeHtml(item.mitigationSummary)}</div>` : "";
@@ -200,7 +212,7 @@ async function load(){
     const requestedView=parameters.get("view");
     if(VIEWS.includes(requestedView))selectView(requestedView);
     const requestedCase=parameters.get("case");
-    if(requestedCase)showStatus(requestedCase);
+    if(requestedCase)openCaseStatus(requestedCase);
   }catch(error){
     byId("loading").innerHTML=`<div class="empty-state"><strong>The AI Inventory could not load</strong>${escapeHtml(error.message)}</div>`;
     console.error(error);
