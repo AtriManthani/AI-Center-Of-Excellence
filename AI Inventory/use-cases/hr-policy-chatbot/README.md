@@ -2,9 +2,10 @@
 
 This is the permanent home for one use case.
 
-1. Update `status.json` when the leadership summary or current position changes.
-2. Update `governance.json` when phase requirements, gates, reviews, risks, decisions, or monitoring results change.
-3. Upload public-safe forms and evidence to the matching phase folder.
-4. Update the same control IDs in `CHECKLIST.md` and `governance.json`.
+1. Update `status.json`; it controls the dashboard card and the current-phase status view.
+3. Open the current phase folder.
+4. Upload forms and review files directly into that folder.
+5. Check completed boxes in `CHECKLIST.md`; the dashboard counts them automatically.
+6. Update `phaseSteps` whenever work inside the current phase changes.
 
-This is the pilot detailed-governance record. Historical approvals and testing evidence are intentionally shown as not recorded until they are confirmed. Everything in this repository is public. Upload only non-sensitive information. Do not claim approval until the reviewing group has made and documented its decision.
+Everything in this repository is public. Upload only non-sensitive information.

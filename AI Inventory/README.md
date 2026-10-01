@@ -8,8 +8,8 @@ The dashboard automatically discovers published records in `use-cases`. `data/us
 
 ## Simple use-case structure
 
-Every use case has a leadership `status.json`, a detailed `governance.json`, and nine phase folders:
+Every use case has one `status.json` file and nine phase folders:
 
 `Intake → Qualify → Prioritize → Design → Develop → Test → Deploy → Monitor → Close`
 
-Upload public-safe forms and reviews directly into the matching phase folder. Each phase folder contains a control-ID `CHECKLIST.md`. The dashboard adds a governance passport, formal review queue, technical risk register, lifecycle progress, and direct **Open Files** and **Open Checklist** links.
+Upload forms and reviews directly into the matching phase folder. Each phase folder contains a short `CHECKLIST.md`. `status.json` records the current stage and the small sequence of steps inside the current phase. Select **View Status** on a dashboard card to see what is complete, current, and upcoming.

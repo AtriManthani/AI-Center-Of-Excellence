@@ -1,31 +1,46 @@
 {
-  "schemaVersion": 2,
   "id": "AI-0001",
   "name": "HR Policy Chatbot",
   "department": "Human Resources",
   "owner": "AI Center of Excellence",
-  "sponsor": "Human Resources",
   "phase": "Test",
   "status": "In Progress",
-  "health": "Needs Review",
-  "riskTier": "Not Assessed",
   "reviewStatus": "Not Started",
-  "currentStep": "Record the approved testing scope, results, findings, and reviewer conditions.",
-  "currentActivity": "The HR Policy Chatbot is the pilot record for detailed governance tracking; supporting public-safe testing and prior-phase evidence must now be entered.",
-  "blocker": "Formal review outcomes and public-safe governance evidence have not yet been recorded in this inventory.",
-  "phaseEnteredDate": null,
-  "targetPhaseExitDate": null,
-  "nextDecision": "Confirm the testing scope and record outstanding Design review outcomes.",
+  "stage": "Phase 1 — Internal Testing",
+  "stageStatus": "Ready to Begin",
+  "currentActivity": "Training for the Phase 1 internal testers was completed this week. The team is ready to begin Phase 1 testing.",
+  "blocker": "",
+  "nextDecision": "Review the Phase 1 testing results and determine the next testing step.",
   "nextDecisionDate": null,
   "lastUpdated": "2026-10-01",
-  "summary": "A pilot AI assistant intended to help users find and understand approved human-resources policy information.",
-  "benefits": {
-    "measure": "Validated policy-answer quality and user acceptance",
-    "baseline": "Not established",
-    "target": "Not established",
-    "current": "Not measured",
-    "cadence": "Not established"
-  },
+  "summary": "An AI assistant intended to help users find and understand approved human-resources policy information.",
+  "phaseSteps": [
+    {
+      "name": "Train Phase 1 internal testers",
+      "status": "Complete",
+      "update": "Completed this week."
+    },
+    {
+      "name": "Begin Phase 1 internal testing",
+      "status": "Current",
+      "update": "Ready to begin."
+    },
+    {
+      "name": "Capture tester feedback and results",
+      "status": "Upcoming",
+      "update": ""
+    },
+    {
+      "name": "Review Phase 1 findings",
+      "status": "Upcoming",
+      "update": ""
+    },
+    {
+      "name": "Record the next testing decision",
+      "status": "Upcoming",
+      "update": ""
+    }
+  ],
   "closureReason": null,
   "publish": true,
   "issues": []

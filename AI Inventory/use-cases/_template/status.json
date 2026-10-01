@@ -1,31 +1,36 @@
 {
-  "schemaVersion": 2,
   "id": "AI-0000",
   "name": "Use-case name",
   "department": "Department",
-  "owner": "Program owner or accountable team",
-  "sponsor": "Executive sponsor or sponsoring group",
+  "owner": "Program owner",
   "phase": "Intake",
   "status": "In Progress",
-  "health": "On Track",
-  "riskTier": "Not Assessed",
   "reviewStatus": "Not Started",
-  "currentStep": "Complete the intake requirements.",
+  "stage": "Current work inside this phase",
+  "stageStatus": "In Progress",
   "currentActivity": "Complete the intake form.",
   "blocker": "",
-  "phaseEnteredDate": null,
-  "targetPhaseExitDate": null,
   "nextDecision": "Confirm the intake is ready to qualify.",
   "nextDecisionDate": null,
   "lastUpdated": "YYYY-MM-DD",
   "summary": "Short, public description of the use case.",
-  "benefits": {
-    "measure": "Public-safe outcome measure",
-    "baseline": "Not established",
-    "target": "Not established",
-    "current": "Not measured",
-    "cadence": "Not established"
-  },
+  "phaseSteps": [
+    {
+      "name": "Complete the current phase activity",
+      "status": "Current",
+      "update": "Work is in progress."
+    },
+    {
+      "name": "Review the phase results",
+      "status": "Upcoming",
+      "update": ""
+    },
+    {
+      "name": "Record the phase decision",
+      "status": "Upcoming",
+      "update": ""
+    }
+  ],
   "closureReason": null,
   "publish": false,
   "issues": []

@@ -7,28 +7,7 @@ When the AI CoE creates a GitHub Project for this repository, use these saved vi
 - Layout: Board
 - Column field: Governance Phase
 - Filter: `Status:In Progress`
-- Card fields: Use Case ID, Health, Risk Tier, Gate Readiness, Current Step, Pending Reviews, Next Decision Date
-
-## Formal Review Queue
-
-- Layout: Table
-- Group by: Review Group
-- Filter: `Review Status:Not Started,In Review,Changes Needed`
-- Fields: Use Case ID, Governance Phase, Review Group, Review Status, Submitted Date, Conditions
-
-## Technical Risk Register
-
-- Layout: Table
-- Group by: Residual Risk
-- Filter: `Risk Status:Open,Mitigating,Monitoring,Accepted`
-- Fields: Risk ID, Use Case ID, Category, Owner Group, Inherent Risk, Residual Risk, Target Date, Decision
-
-## Overdue Governance Actions
-
-- Layout: Table
-- Sort by: Target Date ascending
-- Filter: `Target Date:<@today -Requirement Status:Complete -Requirement Status:"Not Applicable"`
-- Fields: Use Case ID, Governance Phase, Control ID, Owner Group, Requirement Status, Target Date
+- Card fields: Use Case ID, Status, Checklist, Review, Current Update, Next Step Date
 
 ## Priority Backlog
 

@@ -30,8 +30,6 @@
     <nav class="tabs" aria-label="Inventory views">
       <button class="active" data-view="overview" type="button">Leadership Overview</button>
       <button data-view="pipeline" type="button">Governance Pipeline</button>
-      <button data-view="reviews" type="button">Review Queue</button>
-      <button data-view="risks" type="button">Technical Risks</button>
       <button data-view="production" type="button">Production</button>
       <button data-view="issues" type="button">Issues</button>
       <button data-view="closed" type="button">Closed</button>
@@ -66,7 +64,7 @@
 
     <section class="view" id="pipeline" aria-labelledby="pipeline-title">
       <div class="section-heading">
-          <div><span class="eyebrow">Governance lifecycle</span><h2 id="pipeline-title">Use cases by current phase</h2><p>Simple phases, latest update, checklist progress, and direct file access.</p></div>
+          <div><span class="eyebrow">Governance lifecycle</span><h2 id="pipeline-title">Use cases by current phase</h2><p>Current stage, this week's update, what is complete, what is happening now, and what comes next.</p></div>
       </div>
       <div class="filters" aria-label="Inventory filters">
         <input id="searchFilter" type="search" placeholder="Search use case, department, or owner">
@@ -74,25 +72,6 @@
         <select id="departmentFilter" aria-label="Filter by department"><option value="">All departments</option></select>
       </div>
       <div class="pipeline" id="pipelineBoard"></div>
-    </section>
-
-    <section class="view" id="reviews" aria-labelledby="reviews-title">
-      <div class="slide">
-        <div class="section-heading"><div><span class="eyebrow">Formal assurance</span><h2 id="reviews-title">Review queue</h2><p>Required Cyber, Data, Application, Network, and Enterprise decisions that are not yet complete.</p></div></div>
-        <div class="kpi-grid five" id="reviewKpis"></div>
-      </div>
-      <div class="slide panel">
-        <div class="panel-heading"><div><span class="eyebrow">Action required</span><h2>Pending formal reviews</h2></div></div>
-        <div id="reviewQueue"></div>
-      </div>
-    </section>
-
-    <section class="view" id="risks" aria-labelledby="risks-title">
-      <div class="slide">
-        <div class="section-heading"><div><span class="eyebrow">Technical assurance</span><h2 id="risks-title">Technical and AI risk register</h2><p>Inherent and residual risks, mitigation ownership, target dates, and decision status.</p></div></div>
-        <div class="kpi-grid" id="riskKpis"></div>
-      </div>
-      <div class="slide risk-grid" id="technicalRiskList"></div>
     </section>
 
     <section class="view" id="production" aria-labelledby="production-title">
@@ -114,10 +93,10 @@
     </section>
   </main>
 
-  <dialog class="case-dialog" id="caseDetailDialog" aria-labelledby="caseDetailTitle">
-    <div class="dialog-shell">
-      <div class="dialog-header"><div><span class="eyebrow">Governance passport</span><h2 id="caseDetailTitle">Use-case governance</h2></div><button class="dialog-close" id="caseDetailClose" type="button" aria-label="Close detailed governance view">Close</button></div>
-      <div class="dialog-body" id="caseDetailBody"></div>
+  <dialog class="status-dialog" id="statusDetailDialog" aria-labelledby="statusDetailTitle">
+    <div class="status-dialog-shell">
+      <div class="status-dialog-header"><div><span>Current phase status</span><h2 id="statusDetailTitle">Use-case status</h2></div><button id="statusDetailClose" type="button">Close</button></div>
+      <div class="status-dialog-body" id="statusDetailBody"></div>
     </div>
   </dialog>
 
